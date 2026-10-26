@@ -1,0 +1,1320 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>English Exam Quest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap">
+<style>
+/* ---- Design plan ----
+   Layout: single centred column; home (level picker + topic grid) -> activity list -> one-question play -> results.
+   Palette: cool paper, Louw Geldenhuys maroon brand + school gold; green/amber/red mark Easy/Intermediate/Expert.
+   Type: Baloo 2 (rounded display + buttons) with Nunito (body). */
+:root{
+  --bg:#eef1f6; --surface:#ffffff; --surface-2:#f6f8fb;
+  --ink:#1c2230; --muted:#5a6475; --faint:#8a94a4;
+  --brand:#8c1d2c; --brand-2:#b22f45; --brand-ink:#ffffff;
+  --gold:#e8a712; --gold-soft:#fff3d4;
+  --good:#1a9d68; --good-soft:#e3f6ec;
+  --amber:#c9810a; --amber-soft:#fdeecb;
+  --hard:#c6372c; --hard-soft:#fbe4e1;
+  --bad:#d84a3f; --bad-soft:#fde8e6;
+  --line:#e2e7ef; --shadow:0 10px 30px rgba(24,32,54,.09), 0 2px 8px rgba(24,32,54,.05);
+  --radius:20px; --radius-sm:13px;
+  --ff-disp:"Baloo 2",system-ui,sans-serif;
+  --ff-body:"Nunito",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12151c; --surface:#1b1f28; --surface-2:#222835;
+  --ink:#eef1f6; --muted:#a3adbd; --faint:#7a8498;
+  --brand:#e65c72; --brand-2:#f07389; --brand-ink:#1b1f28;
+  --gold:#f6c84a; --gold-soft:#3a3016;
+  --good:#38c88c; --good-soft:#16301f;
+  --amber:#e7a93c; --amber-soft:#352a12;
+  --hard:#f0766b; --hard-soft:#331a17;
+  --bad:#f0766b; --bad-soft:#331a17;
+  --line:#2b313d; --shadow:0 12px 34px rgba(0,0,0,.5);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#12151c; --surface:#1b1f28; --surface-2:#222835;
+  --ink:#eef1f6; --muted:#a3adbd; --faint:#7a8498;
+  --brand:#e65c72; --brand-2:#f07389; --brand-ink:#1b1f28;
+  --gold:#f6c84a; --gold-soft:#3a3016;
+  --good:#38c88c; --good-soft:#16301f;
+  --amber:#e7a93c; --amber-soft:#352a12;
+  --hard:#f0766b; --hard-soft:#331a17;
+  --bad:#f0766b; --bad-soft:#331a17;
+  --line:#2b313d; --shadow:0 12px 34px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ff-body);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100%}
+h1,h2,h3{font-family:var(--ff-disp);line-height:1.1;margin:0;text-wrap:balance}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:inherit}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-block:0}
+
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+.topbar .wrap{display:flex;align-items:center;gap:12px;padding-block:10px;min-height:58px}
+.brandmark{display:flex;align-items:center;gap:10px;min-width:0}
+.crest{flex:none;width:34px;height:34px;border-radius:10px;background:linear-gradient(145deg,var(--brand),var(--brand-2));color:var(--brand-ink);display:grid;place-items:center;font-family:var(--ff-disp);font-weight:800;font-size:13px;letter-spacing:.3px;box-shadow:0 3px 10px rgba(140,29,44,.35)}
+.brandmark b{font-family:var(--ff-disp);font-weight:800;font-size:17px;letter-spacing:.1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brandmark small{display:block;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.3px}
+.spacer{flex:1}
+.stat{display:flex;align-items:center;gap:5px;font-family:var(--ff-disp);font-weight:700;font-size:14px;background:var(--surface);border:1px solid var(--line);padding:6px 11px;border-radius:999px;white-space:nowrap}
+.stat.xp{color:var(--brand)}
+.stat.star{color:var(--gold)}
+.iconbtn{flex:none;width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-size:16px;transition:transform .12s}
+.iconbtn:active{transform:scale(.92)}
+
+.screen{padding-top:20px;padding-bottom:46px}
+.eyebrow{font-family:var(--ff-disp);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--brand)}
+.lead{color:var(--muted);font-size:15px;margin-top:7px}
+
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-50px;top:-50px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle at 30% 30%,var(--gold-soft),transparent 70%);opacity:.8;pointer-events:none}
+.hero h1{font-size:clamp(25px,6vw,35px);margin:8px 0 0}
+.hero .bars{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-weight:700;font-size:13px}
+.chip b{font-family:var(--ff-disp);color:var(--brand)}
+.progress-line{height:9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden;margin-top:16px}
+.progress-line i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--gold));border-radius:999px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+.levelpick{margin-top:18px}
+.levelpick .lp-label{font-family:var(--ff-disp);font-weight:700;font-size:13px;color:var(--muted);margin-bottom:8px;letter-spacing:.02em}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.seg button{font-family:var(--ff-disp);font-weight:700;font-size:13px;padding:10px 6px;border-radius:12px;background:var(--surface-2);border:2px solid transparent;color:var(--muted);transition:transform .1s,border-color .15s,background .15s;line-height:1.15}
+.seg button small{display:block;font-weight:600;font-size:10px;opacity:.8;margin-top:2px}
+.seg button:active{transform:scale(.97)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.seg button.lv-all[aria-pressed="true"]{border-color:var(--brand);color:var(--brand)}
+.seg button.lv-1[aria-pressed="true"]{border-color:var(--good);color:var(--good)}
+.seg button.lv-2[aria-pressed="true"]{border-color:var(--amber);color:var(--amber)}
+.seg button.lv-3[aria-pressed="true"]{border-color:var(--hard);color:var(--hard)}
+
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 2px 13px}
+.sec-head h2{font-size:20px}
+.sec-head span{font-size:13px;color:var(--muted);font-weight:700}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}}
+.card{text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:17px;box-shadow:var(--shadow);transition:transform .14s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;gap:11px;min-width:0}
+.card:hover{transform:translateY(-3px)}
+.card:active{transform:translateY(0) scale(.99)}
+.card .tophalf{display:flex;align-items:center;gap:12px}
+.tile{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:var(--tile-bg,var(--surface-2));box-shadow:inset 0 0 0 1px rgba(0,0,0,.03)}
+.card h3{font-size:16.5px}
+.card .sub{color:var(--muted);font-size:12.5px;font-weight:600;margin-top:2px}
+.card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto}
+.stars{letter-spacing:1px;font-size:13px;color:var(--gold)}
+.stars .off{color:var(--line)}
+.pill{font-size:11.5px;font-weight:800;font-family:var(--ff-disp);color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:4px 9px;border-radius:999px}
+.pill.done{color:var(--good);background:var(--good-soft);border-color:transparent}
+
+.alist{display:flex;flex-direction:column;gap:11px}
+.arow{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 15px;box-shadow:var(--shadow);transition:transform .14s}
+.arow:active{transform:scale(.99)}
+.arow .num{flex:none;width:34px;height:34px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-family:var(--ff-disp);font-weight:800;color:var(--brand);font-size:15px}
+.arow .mid{flex:1;min-width:0}
+.arow .mid b{font-family:var(--ff-disp);font-weight:700;font-size:15.5px;display:block}
+.arow .mid small{color:var(--muted);font-size:12px;font-weight:700;display:block;margin-top:1px}
+.arow .go{flex:none;font-size:18px;color:var(--faint)}
+.typetag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--surface-2);color:var(--muted);margin-right:6px}
+.lvpill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+.lv1{background:var(--good-soft);color:var(--good)}
+.lv2{background:var(--amber-soft);color:var(--amber)}
+.lv3{background:var(--hard-soft);color:var(--hard)}
+
+.btn{font-family:var(--ff-disp);font-weight:700;font-size:16px;background:var(--brand);color:var(--brand-ink);padding:14px 22px;border-radius:14px;box-shadow:0 5px 16px rgba(140,29,44,.32);transition:transform .12s;width:100%}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn:disabled{opacity:.45;box-shadow:none}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow)}
+.btn.gold{background:var(--gold);color:#3a2a05;box-shadow:0 5px 16px rgba(232,167,18,.35)}
+.back{display:inline-flex;align-items:center;gap:7px;font-family:var(--ff-disp);font-weight:700;color:var(--muted);font-size:14px;padding:8px 2px;margin-bottom:6px}
+.back:active{transform:translateX(-2px)}
+
+.playbar{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.playbar .pline{flex:1;height:10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.playbar .pline i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-2));transition:width .35s}
+.playbar .sc{font-family:var(--ff-disp);font-weight:800;color:var(--gold);font-size:15px;white-space:nowrap}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.qinstr{font-family:var(--ff-disp);font-weight:700;color:var(--brand);font-size:14px;margin-bottom:12px}
+.qtext{font-size:21px;font-family:var(--ff-disp);font-weight:600;line-height:1.3;margin-bottom:6px}
+.qtext u{color:var(--brand);text-decoration-thickness:2px;text-underline-offset:3px}
+.qsub{color:var(--muted);font-size:14px;margin-bottom:16px}
+.wordhero{font-size:34px;font-family:var(--ff-disp);font-weight:800;text-align:center;padding:22px 10px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:18px}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;width:100%;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:14px 16px;font-size:16px;font-weight:700;color:var(--ink);transition:transform .1s,border-color .15s,background .15s;display:flex;align-items:center;gap:12px}
+.opt:active{transform:scale(.99)}
+.opt .mk{flex:none;width:26px;height:26px;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;font-family:var(--ff-disp);font-weight:800;font-size:13px;color:var(--muted)}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.correct .mk{background:var(--good);color:#fff}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .mk{background:var(--bad);color:#fff}
+.opt.dim{opacity:.5}
+.opts.cols2{flex-direction:row;flex-wrap:wrap}
+.opts.cols2 .opt{flex:1;min-width:130px;justify-content:center}
+
+.sent{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tok{background:var(--surface-2);border:2px solid var(--line);border-radius:11px;padding:9px 13px;font-size:17px;font-weight:700;transition:transform .1s,border-color .15s,background .15s}
+.tok:active{transform:scale(.95)}
+.tok.sel{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface))}
+.tok.ok{border-color:var(--good);background:var(--good-soft)}
+.tok.miss{border-color:var(--gold);background:var(--gold-soft)}
+.tok.err{border-color:var(--bad);background:var(--bad-soft)}
+
+.answerzone{min-height:58px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;padding:12px;border:2px dashed var(--line);border-radius:var(--radius-sm);margin-bottom:14px;background:var(--surface-2)}
+.answerzone:empty::before{content:"Tap the tiles below to build your sentence";color:var(--faint);font-weight:700;font-size:13.5px}
+.bank{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.tile-w{background:var(--surface);border:2px solid var(--line);border-radius:11px;padding:9px 13px;font-size:16px;font-weight:700;box-shadow:var(--shadow);transition:transform .1s,opacity .15s}
+.tile-w:active{transform:scale(.94)}
+.tile-w.used{opacity:.28;pointer-events:none}
+.tile-w.inzone{background:color-mix(in srgb,var(--brand) 10%,var(--surface));border-color:var(--brand)}
+
+.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.matchgrid .col{display:flex;flex-direction:column;gap:9px}
+.mitem{text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px;font-size:14px;font-weight:700;transition:transform .1s,border-color .15s,background .15s;min-height:54px;display:flex;align-items:center}
+.mitem:active{transform:scale(.98)}
+.mitem.active{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 12%,var(--surface))}
+.mitem.done{border-color:var(--good);background:var(--good-soft);color:var(--good);pointer-events:none}
+.mitem.flash{border-color:var(--bad);background:var(--bad-soft)}
+
+.tinput{width:100%;font-family:var(--ff-body);font-weight:700;font-size:18px;color:var(--ink);background:var(--surface-2);border:2px solid var(--line);border-radius:13px;padding:14px 15px;transition:border-color .15s}
+.tinput:focus{outline:none;border-color:var(--brand)}
+.tinput.ok{border-color:var(--good);background:var(--good-soft)}
+.tinput.err{border-color:var(--bad);background:var(--bad-soft)}
+.fillrow{font-size:19px;font-family:var(--ff-disp);font-weight:600;line-height:2;margin-bottom:6px}
+.fillrow input{font-family:var(--ff-body);font-weight:700;font-size:17px;color:var(--ink);background:var(--surface-2);border:none;border-bottom:3px solid var(--brand);padding:3px 8px;min-width:90px;width:130px;text-align:center}
+.fillrow input:focus{outline:none;background:color-mix(in srgb,var(--brand) 8%,var(--surface-2))}
+.fillrow input.ok{border-color:var(--good);background:var(--good-soft)}
+.fillrow input.err{border-color:var(--bad);background:var(--bad-soft)}
+
+.feedback{margin-top:16px;border-radius:var(--radius-sm);padding:14px 16px;display:none;animation:rise .3s cubic-bezier(.2,.8,.2,1)}
+.feedback.show{display:block}
+.feedback.good{background:var(--good-soft);border:1px solid color-mix(in srgb,var(--good) 40%,transparent)}
+.feedback.bad{background:var(--bad-soft);border:1px solid color-mix(in srgb,var(--bad) 40%,transparent)}
+.feedback .verdict{font-family:var(--ff-disp);font-weight:800;font-size:16px}
+.feedback.good .verdict{color:var(--good)}
+.feedback.bad .verdict{color:var(--bad)}
+.feedback .why{font-size:14.5px;color:var(--ink);margin-top:6px;line-height:1.5}
+.feedback .why b{color:var(--brand)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.actionrow{margin-top:16px}
+
+.result{text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 22px}
+.result .big-stars{font-size:46px;letter-spacing:6px;color:var(--gold);margin:6px 0 2px}
+.result .big-stars .off{color:var(--line)}
+.result h2{font-size:26px;margin-bottom:6px}
+.result .sline{color:var(--muted);font-weight:700;margin-bottom:4px}
+.result .pct{font-family:var(--ff-disp);font-weight:800;font-size:40px;color:var(--brand);margin:10px 0}
+.result .btns{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+.footer{margin-top:34px;text-align:center;color:var(--faint);font-size:12px;font-weight:700;padding-bottom:10px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---- Class Mode ---- */
+.tlink{display:flex;align-items:center;gap:9px;width:100%;margin-top:14px;padding:12px 15px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);font-family:var(--ff-disp);font-weight:700;font-size:13.5px;color:var(--muted);transition:transform .12s}
+.tlink:active{transform:scale(.99)}
+.tlink .arrow{margin-left:auto;color:var(--faint)}
+.cscreen{padding-top:22px;padding-bottom:46px;min-height:70vh}
+.ceyebrow{font-family:var(--ff-disp);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:var(--brand)}
+.ch1{font-size:clamp(24px,5vw,32px);margin:8px 0 10px}
+.clead{color:var(--muted);font-size:15px;margin-bottom:18px;max-width:60ch}
+.cgate-card,.csetup-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
+.cinput{width:100%;font-family:var(--ff-disp);font-weight:700;font-size:20px;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:var(--ink);background:var(--surface-2);border:2px solid var(--line);border-radius:13px;padding:14px;margin-bottom:12px}
+.cinput:focus{outline:none;border-color:var(--brand)}
+.cbtn{width:100%;font-family:var(--ff-disp);font-weight:700;font-size:17px;background:var(--brand);color:var(--brand-ink);padding:15px;border-radius:14px;box-shadow:0 5px 16px rgba(140,29,44,.3);transition:transform .12s;margin-top:4px}
+.cbtn:active{transform:translateY(1px) scale(.99)}
+.cerr{margin-top:12px;color:var(--bad);font-weight:700;font-size:14px}
+.cfield{display:block;margin-bottom:16px}
+.cfield>span{display:block;font-family:var(--ff-disp);font-weight:700;font-size:13px;color:var(--muted);margin-bottom:7px;letter-spacing:.02em}
+.cselect{width:100%;font-family:var(--ff-body);font-weight:700;font-size:16px;color:var(--ink);background:var(--surface-2);border:2px solid var(--line);border-radius:12px;padding:12px 13px}
+.cselect:focus{outline:none;border-color:var(--brand)}
+.cseg{display:flex;flex-wrap:wrap;gap:8px}
+.cseg button{font-family:var(--ff-disp);font-weight:700;font-size:14px;padding:11px 16px;border-radius:11px;background:var(--surface-2);border:2px solid transparent;color:var(--muted);transition:transform .1s}
+.cseg button:active{transform:scale(.97)}
+.cseg button[aria-pressed="true"]{background:var(--surface);color:var(--brand);border-color:var(--brand);box-shadow:var(--shadow)}
+.cnote{color:var(--muted);font-size:13px;margin:6px 0 16px;line-height:1.5}
+#classplay{position:fixed;inset:0;z-index:40;background:#f3f1ea;color:#242a33;display:flex;flex-direction:column;overflow:auto;padding-top:env(safe-area-inset-top,0px)}
+.cp-head{display:flex;align-items:center;gap:12px;padding:14px max(20px,env(safe-area-inset-left,0px))}
+.cp-meta{font-family:var(--ff-disp);font-weight:700;font-size:14px;color:#6b7280;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.cp-count{font-family:var(--ff-disp);font-weight:800;font-size:16px;color:#8c3b43}
+.cp-tools{display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end}
+.cp-pill{font-family:var(--ff-disp);font-weight:700;font-size:13px;color:#4b5563;background:#eceae1;border:1px solid #ddd9cc;border-radius:999px;padding:7px 12px;white-space:nowrap}
+.cp-ic{width:38px;height:38px;border-radius:10px;background:#eceae1;border:1px solid #ddd9cc;font-size:16px;color:#4b5563;display:grid;place-items:center}
+.cp-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;max-width:1000px;width:100%;margin:0 auto;padding:24px max(22px,env(safe-area-inset-left,0px))}
+.cp-act{font-family:var(--ff-disp);font-weight:700;font-size:clamp(14px,2.4vw,19px);color:#8c3b43;letter-spacing:.02em}
+.cp-q{font-family:var(--ff-disp);font-weight:700;font-size:clamp(25px,4.6vw,44px);line-height:1.22}
+.cp-q b{color:#8c3b43}
+.cp-q u{color:#8c3b43;text-decoration-thickness:3px;text-underline-offset:4px}
+.cp-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+@media (max-width:640px){.cp-opts{grid-template-columns:1fr}}
+.cp-opt{display:flex;align-items:center;gap:15px;background:#fbfaf6;border:2px solid #e3e0d6;border-radius:16px;padding:16px 18px;font-family:var(--ff-disp);font-weight:700;font-size:clamp(17px,2.5vw,23px)}
+.cp-num{flex:none;width:42px;height:42px;border-radius:12px;background:#eceae1;color:#6b7280;display:grid;place-items:center;font-size:19px;font-weight:800}
+.cp-opt.correct{border-color:#2a7d55;background:#e7f2ea}
+.cp-opt.correct .cp-num{background:#2a7d55;color:#fff}
+.cp-opt.dim{opacity:.42}
+.cp-prompt{font-family:var(--ff-disp);font-weight:700;font-size:clamp(15px,2.3vw,21px);color:#4b5563;background:#eceae1;border-radius:14px;padding:15px 20px;text-align:center}
+.cp-reveal{background:#fbfaf6;border:2px solid #e3e0d6;border-left:6px solid #2a7d55;border-radius:16px;padding:19px 22px}
+.cp-ans{font-family:var(--ff-disp);font-weight:800;font-size:clamp(18px,2.9vw,26px);color:#2a7d55;margin-bottom:8px}
+.cp-ans b{color:#1f2937}
+.cp-why{font-size:clamp(15px,2.1vw,19px);line-height:1.5;color:#374151}
+.cp-foot{display:flex;align-items:center;gap:14px;padding:16px max(20px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px))}
+.cp-nav{width:52px;height:52px;border-radius:14px;background:#eceae1;border:1px solid #ddd9cc;font-size:20px;color:#4b5563}
+.cp-main{flex:1;max-width:440px;font-family:var(--ff-disp);font-weight:800;font-size:19px;background:#8c3b43;color:#fff;padding:16px;border-radius:14px;box-shadow:0 5px 16px rgba(140,59,67,.3)}
+.cp-main:active{transform:translateY(1px)}
+.cp-hint{margin-left:auto;font-size:12px;color:#9aa0a8;font-weight:700;text-align:right}
+@media (max-width:680px){.cp-hint{display:none}}
+.cp-scores{display:flex;align-items:center;gap:10px;padding:10px max(20px,env(safe-area-inset-left,0px));border-top:1px solid #e3e0d6;overflow-x:auto}
+.cp-scores-row{display:flex;gap:8px;flex:1;min-width:0}
+.cp-team{flex:none;display:flex;align-items:center;gap:8px;background:#fbfaf6;border:2px solid #e3e0d6;border-radius:12px;padding:9px 13px;font-family:var(--ff-disp);font-weight:800;font-size:15px;color:#4b5563;transition:transform .1s}
+.cp-team:active{transform:scale(.95)}
+.cp-team-s{background:#8c3b43;color:#fff;border-radius:8px;padding:1px 9px;font-size:14px}
+.cp-undo{flex:none;font-family:var(--ff-disp);font-weight:700;font-size:13px;color:#6b7280;background:#eceae1;border:1px solid #ddd9cc;border-radius:10px;padding:9px 12px}
+.cp-awardhint{margin-top:11px;font-family:var(--ff-disp);font-weight:700;font-size:14px;color:#8c3b43}
+.cp-standings{display:flex;flex-direction:column;gap:8px;max-width:420px;margin:0 auto}
+.cp-stand{display:flex;justify-content:space-between;gap:16px;background:#fbfaf6;border:1px solid #e3e0d6;border-radius:12px;padding:12px 16px;font-family:var(--ff-disp);font-weight:800;font-size:18px;color:#1f2937}
+.cp-stand:first-child{border-color:#2a7d55;background:#e7f2ea;color:#2a7d55}
+</style>
+
+<div class="topbar">
+  <div class="wrap">
+    <button class="brandmark" id="homeLink" aria-label="Home">
+      <span class="crest">LLG</span>
+      <span style="min-width:0"><b>English Exam Quest</b><small>Grade 6 &middot; KW4 Revision</small></span>
+    </button>
+    <span class="spacer"></span>
+    <span class="stat xp"><span>&#9889;</span><span id="xpVal">0</span></span>
+    <span class="stat star"><span>&#9733;</span><span id="starVal">0</span></span>
+    <button class="iconbtn" id="themeBtn" aria-label="Switch light or dark">&#9680;</button>
+  </div>
+</div>
+
+<main>
+  <!-- HOME -->
+  <section id="home" class="screen"><div class="wrap">
+    <div class="hero">
+      <div class="eyebrow">Laerskool Louw Geldenhuys</div>
+      <h1>Train for the<br>November English exam</h1>
+      <p class="lead">Mini-games for every language topic on your KW4 afbakening. Pick a level, earn stars, and climb from Easy to Expert.</p>
+      <div class="bars">
+        <span class="chip"><b id="topicCount">0</b>&nbsp;topics</span>
+        <span class="chip"><b id="actCount">0</b>&nbsp;activities</span>
+        <span class="chip">&#9733; <b id="starTotal2">0</b>&nbsp;stars</span>
+      </div>
+      <div class="levelpick">
+        <div class="lp-label">Choose your level</div>
+        <div class="seg" id="seg">
+          <button class="lv-all" data-lv="all" aria-pressed="true">All<small>everything</small></button>
+          <button class="lv-1" data-lv="1" aria-pressed="false">Easy<small>tap &amp; pick</small></button>
+          <button class="lv-2" data-lv="2" aria-pressed="false">Interm.<small>type words</small></button>
+          <button class="lv-3" data-lv="3" aria-pressed="false">Expert<small>type sentences</small></button>
+        </div>
+      </div>
+      <div class="progress-line"><i id="homeProgress" style="width:0%"></i></div>
+      <button class="tlink" id="teacherLink">🔒 Teacher &middot; Class Mode <span class="arrow">›</span></button>
+    </div>
+    <div class="sec-head"><h2>Pick a topic</h2><span id="topicDone">0 done</span></div>
+    <div class="grid" id="topicGrid"></div>
+    <div class="footer">Exam: 11 November 2026 &middot; Sections A, B &amp; C &middot; Laerskool Louw Geldenhuys</div>
+  </div></section>
+
+  <!-- TOPIC -->
+  <section id="topic" class="screen" hidden><div class="wrap">
+    <button class="back" data-nav="home">&#8592; All topics</button>
+    <div class="hero" style="padding:20px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="tile" id="tTile" style="width:54px;height:54px;font-size:28px"></span>
+        <div style="min-width:0"><h1 id="tTitle" style="font-size:24px"></h1><p class="lead" id="tBlurb" style="margin-top:4px"></p></div>
+      </div>
+    </div>
+    <div class="sec-head"><h2>Activities</h2><span id="tStars"></span></div>
+    <div class="alist" id="actList"></div>
+    <p class="footer" id="filterNote"></p>
+  </div></section>
+
+  <!-- PLAY -->
+  <section id="play" class="screen" hidden><div class="wrap">
+    <button class="back" id="quitBtn">&#8592; Quit</button>
+    <div class="playbar">
+      <div class="pline"><i id="qProgress" style="width:0%"></i></div>
+      <div class="sc"><span id="qIndex">1</span>/<span id="qTotal">1</span></div>
+      <div class="sc" style="color:var(--brand)">&#9889;<span id="qScore">0</span></div>
+    </div>
+    <div class="qcard" id="qCard"></div>
+    <div class="feedback" id="feedback">
+      <div class="verdict" id="fVerdict"></div>
+      <div class="why" id="fWhy"></div>
+    </div>
+    <div class="actionrow" id="actionRow"></div>
+  </div></section>
+
+  <!-- RESULTS -->
+  <section id="done" class="screen" hidden><div class="wrap">
+    <div class="result">
+      <div class="eyebrow" id="rTopic"></div>
+      <div class="big-stars" id="rStars"></div>
+      <h2 id="rTitle">Nice work!</h2>
+      <div class="sline" id="rMsg"></div>
+      <div class="pct" id="rPct">0%</div>
+      <div class="sline" id="rScore"></div>
+      <div class="btns">
+        <button class="btn" id="rAgain">Play again</button>
+        <button class="btn gold" id="rNext" hidden>Next activity &#8594;</button>
+        <button class="btn ghost" id="rBack">Back to topic</button>
+      </div>
+    </div>
+  </div></section>
+  <!-- CLASS: code gate -->
+  <section id="classgate" class="cscreen" hidden><div class="wrap">
+    <button class="back" id="cgBack">&#8592; Back to the app</button>
+    <div class="cgate-card">
+      <div class="ceyebrow">Teacher access</div>
+      <h1 class="ch1">Class Mode</h1>
+      <p class="clead">A calm, front-of-class review you run from this one screen. Learners answer together without any devices. Enter the class code to continue.</p>
+      <input id="cgCode" class="cinput" type="text" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="Class code">
+      <button class="cbtn" id="cgUnlock">Unlock Class Mode</button>
+      <div id="cgErr" class="cerr" hidden>That code isn't right. Please check with the teacher.</div>
+    </div>
+  </div></section>
+
+  <!-- CLASS: setup -->
+  <section id="classsetup" class="cscreen" hidden><div class="wrap">
+    <button class="back" id="csBack">&#8592; Back to the app</button>
+    <div class="csetup-card">
+      <div class="ceyebrow">Class Mode</div>
+      <h1 class="ch1">Set up a session</h1>
+      <p class="clead">No devices for learners &mdash; you drive everything from here. Pick what to practise, then start.</p>
+      <div class="cfield"><span>Mode</span><div class="cseg" id="csMode">
+        <button data-mode="solo" aria-pressed="true">Whole class</button>
+        <button data-mode="group">Groups (teams)</button></div></div>
+      <label class="cfield"><span>Topic</span><select id="csTopic" class="cselect"></select></label>
+      <div class="cfield"><span>Level</span><div class="cseg" id="csLevel">
+        <button data-lv="all" aria-pressed="true">Mixed</button>
+        <button data-lv="1">Easy</button>
+        <button data-lv="2">Intermediate</button>
+        <button data-lv="3">Expert</button></div></div>
+      <div class="cfield"><span>How many questions</span><div class="cseg" id="csLen">
+        <button data-n="5" aria-pressed="true">5</button>
+        <button data-n="10">10</button>
+        <button data-n="15">15</button>
+        <button data-n="0">All</button></div></div>
+      <div class="cfield" id="csMethodField"><span>How learners answer</span><div class="cseg" id="csMethod">
+        <button data-m="hands" aria-pressed="true">Hands up</button>
+        <button data-m="boards">Mini-whiteboards</button></div></div>
+      <p class="cnote" id="csMethodNote"></p>
+      <div class="cfield" id="csGroupsField" hidden><span>Number of groups (3&ndash;5 learners each)</span><div class="cseg" id="csGroups">
+        <button data-g="4">4</button><button data-g="5">5</button>
+        <button data-g="6" aria-pressed="true">6</button><button data-g="7">7</button><button data-g="8">8</button></div></div>
+      <button class="cbtn" id="csStart">Start session &#8594;</button>
+      <p class="cnote">Calm by design: no scores, no timers, no calling out. You reveal each answer when the class is ready, then read the explanation together.</p>
+    </div>
+  </div></section>
+
+  <!-- CLASS: present -->
+  <section id="classplay" hidden>
+    <div class="cp-head">
+      <div class="cp-meta" id="cpMeta"></div>
+      <div class="cp-count"><span id="cpIdx">1</span> / <span id="cpTot">10</span></div>
+      <div class="cp-tools">
+        <button class="cp-pill" id="cpScoreToggle" hidden>👁 Scores off</button>
+        <button class="cp-pill" id="cpVoice">🔇 Silent voices</button>
+        <button class="cp-ic" id="cpFull" title="Fullscreen (F)">&#9974;</button>
+        <button class="cp-ic" id="cpExit" title="Exit (Esc)">&#10005;</button>
+      </div>
+    </div>
+    <div class="cp-body">
+      <div class="cp-act" id="cpAct"></div>
+      <div class="cp-q" id="cpQ"></div>
+      <div class="cp-opts" id="cpOpts"></div>
+      <div class="cp-prompt" id="cpPrompt"></div>
+      <div class="cp-reveal" id="cpReveal" hidden>
+        <div class="cp-ans" id="cpAns"></div>
+        <div class="cp-why" id="cpWhy"></div>
+      </div>
+    </div>
+    <div class="cp-scores" id="cpScores" hidden>
+      <div class="cp-scores-row" id="cpScoresRow"></div>
+      <button class="cp-undo" id="cpUndo">&#8624; Undo</button>
+    </div>
+    <div class="cp-foot">
+      <button class="cp-nav" id="cpPrev">&#9664;</button>
+      <button class="cp-main" id="cpMain">Reveal answer</button>
+      <div class="cp-hint">Space / &rarr; reveal &amp; next &middot; &larr; back &middot; R reveal &middot; F fullscreen &middot; Esc exit</div>
+    </div>
+  </section>
+</main>
+<canvas class="confetti" id="confetti" hidden></canvas>
+
+<script>
+/* ============================= DATA ============================= */
+/* Each topic has 5 activities. level: 1 Easy (tap/pick), 2 Intermediate (type words), 3 Expert (type sentences).
+   Types: mcq, sort, tapword, build, match, fillblank, typein. Each item carries a full teaching explanation. */
+const DATA=[
+ {id:"pos",title:"Parts of Speech",icon:"🏷️",tileBg:"#ffe3e7",
+  blurb:"Noun, verb, adjective, adverb and friends.",
+  activities:[
+   {id:"pos1",title:"Word Sorter",type:"sort",level:1,instr:"Which box does each word belong in?",
+    buckets:["Noun","Verb","Adjective","Adverb"],items:[
+     {word:"freedom",answer:"Noun",explain:"A noun names a person, place, thing or idea. 'Freedom' is an idea you cannot touch, so it is a noun (an abstract noun)."},
+     {word:"jumped",answer:"Verb",explain:"A verb is a doing or action word. 'Jumped' tells us the action that happened, so it is a verb."},
+     {word:"gigantic",answer:"Adjective",explain:"An adjective describes a noun. 'Gigantic' tells us how big something is, so it describes a noun and is an adjective."},
+     {word:"silently",answer:"Adverb",explain:"An adverb tells us how, when or where. 'Silently' tells HOW something is done and ends in -ly, so it is an adverb."},
+     {word:"teacher",answer:"Noun",explain:"A noun names a person, place or thing. 'Teacher' is a person, so it is a noun."},
+     {word:"fierce",answer:"Adjective",explain:"An adjective describes a noun. 'Fierce' describes what something is like (a fierce dog), so it is an adjective."},
+     {word:"yesterday",answer:"Adverb",explain:"An adverb of time tells WHEN something happened. 'Yesterday' tells us when, so it is an adverb."}]},
+   {id:"pos2",title:"Name That Part",type:"mcq",level:1,instr:"What is the underlined word? Be specific.",items:[
+     {q:"The <u>Springboks</u> won the cup.",options:["Common noun","Proper noun","Abstract noun","Pronoun"],answer:"Proper noun",explain:"A proper noun is the special name of one particular person, place or team, and it always starts with a capital letter. 'Springboks' names one specific team, so it is a proper noun."},
+     {q:"The team showed great <u>courage</u>.",options:["Common noun","Collective noun","Abstract noun","Verb"],answer:"Abstract noun",explain:"An abstract noun names something you cannot see, hear or touch — a feeling or idea. You cannot touch 'courage', so it is an abstract noun."},
+     {q:"A <u>herd</u> of elephants crossed.",options:["Collective noun","Proper noun","Abstract noun","Adjective"],answer:"Collective noun",explain:"A collective noun is a single word for a whole group. 'Herd' names a group of elephants, so it is a collective noun."},
+     {q:"<u>They</u> enjoyed the ride.",options:["Noun","Pronoun","Adverb","Verb"],answer:"Pronoun",explain:"A pronoun takes the place of a noun so we don't repeat it. 'They' stands in for the people's names, so it is a pronoun."},
+     {q:"The cat hid <u>under</u> the bed.",options:["Adverb","Conjunction","Preposition","Interjection"],answer:"Preposition",explain:"A preposition shows the position or direction of something (where it is). 'Under' tells us where the cat is, so it is a preposition."},
+     {q:"She ran <u>and</u> jumped.",options:["Preposition","Conjunction","Adverb","Pronoun"],answer:"Conjunction",explain:"A conjunction is a joining word that links words or parts of a sentence. 'And' joins 'ran' and 'jumped', so it is a conjunction."}]},
+   {id:"pos3",title:"Name It (type)",type:"typein",level:2,instr:"Type the part of speech of the word.",items:[
+     {prompt:'<b>quickly</b>',accept:["adverb"],explain:"Adverbs often end in -ly and tell us HOW something is done. 'Quickly' tells how, so it is an adverb."},
+     {prompt:'<b>London</b>',accept:["proper noun","noun"],show:"proper noun",explain:"A proper noun is the special name of one place and starts with a capital letter. 'London' names one city, so it is a proper noun."},
+     {prompt:'<b>beautiful</b>',accept:["adjective"],explain:"An adjective describes a noun. 'Beautiful' tells us what something is like, so it is an adjective."},
+     {prompt:'<b>and</b>',accept:["conjunction"],explain:"A conjunction joins words or parts of a sentence together. 'And' is one of the most common joining words, so it is a conjunction."},
+     {prompt:'<b>under</b> (in “under the bed”)',accept:["preposition"],explain:"A preposition shows where something is. 'Under' tells us the position, so it is a preposition."}]},
+   {id:"pos4",title:"Tap the Nouns",type:"tapword",level:2,instr:"Tap EVERY noun in the sentence.",items:[
+     {sentence:"The dog chased the cat around the garden.",answers:["dog","cat","garden"],explain:"Nouns name people, places, animals or things. Here 'dog', 'cat' and 'garden' are all naming words, so they are the nouns. ('Chased' is a verb and 'around' is a preposition.)"},
+     {sentence:"My brother plays rugby on Saturday.",answers:["brother","rugby","Saturday"],explain:"'Brother' (person), 'rugby' (a thing/game) and 'Saturday' (a day) are all naming words, so they are the nouns. ('Plays' is the verb.)"},
+     {sentence:"The teacher wrote a story about dragons.",answers:["teacher","story","dragons"],explain:"'Teacher', 'story' and 'dragons' all name people or things, so they are the nouns. ('Wrote' is the verb.)"},
+     {sentence:"Sarah bought bread and milk.",answers:["Sarah","bread","milk"],explain:"'Sarah' (a person's name), 'bread' and 'milk' are all naming words, so they are the nouns. 'Sarah' is also a proper noun because it is a name."}]},
+   {id:"pos5",title:"Tricky Words (type)",type:"typein",level:3,instr:"The same word can change its job. Type the part of speech used here.",items:[
+     {prompt:'They will <b>run</b> fast.',accept:["verb"],explain:"The SAME word can be different parts of speech depending on its job in the sentence. Here 'run' is the action they will do, so it works as a verb."},
+     {prompt:'They went for a <b>run</b>.',accept:["noun"],explain:"Here 'run' is a thing you can have ('a run'). Because it names a thing, it works as a noun this time, even though it looked like a verb before."},
+     {prompt:'I <b>booked</b> a ticket.',accept:["verb"],explain:"'Booked' is the action of reserving something, so here it works as a verb."},
+     {prompt:'I read a <b>book</b>.',accept:["noun"],explain:"Here 'book' is the object/thing you read, so it works as a noun."},
+     {prompt:'Turn <b>left</b> at the shop.',accept:["adverb"],explain:"Here 'left' tells us WHERE/which direction to turn. Because it describes the verb 'turn', it works as an adverb."}]}
+  ]},
+
+ {id:"verbs",title:"Verbs",icon:"⚡",tileBg:"#fff0d6",
+  blurb:"Action words, linking words and helper verbs.",
+  activities:[
+   {id:"verbs1",title:"Find the Verb",type:"tapword",level:1,instr:"Tap the verb in each sentence.",items:[
+     {sentence:"The dog barks at strangers.",answers:["barks"],explain:"The verb is the action — what the subject does. Here the dog 'barks', so 'barks' is the verb."},
+     {sentence:"We watched the match on Saturday.",answers:["watched"],explain:"'Watched' is what we did, so it is the action word (verb). The -ed ending shows it already happened (past tense)."},
+     {sentence:"Lightning struck the old tower.",answers:["struck"],explain:"'Struck' is the action (what the lightning did), so it is the verb."},
+     {sentence:"The baby sleeps all afternoon.",answers:["sleeps"],explain:"'Sleeps' tells us what the baby does, so it is the verb."},
+     {sentence:"He kicked the ball over the fence.",answers:["kicked"],explain:"'Kicked' is the action he did, so it is the verb."}]},
+   {id:"verbs2",title:"Verb Detective",type:"mcq",level:1,instr:"What kind of verb is underlined?",items:[
+     {q:"She <u>kicked</u> the ball.",options:["Action verb","Linking verb","Helping verb"],answer:"Action verb",explain:"An action verb shows something being done. Kicking is a physical action, so 'kicked' is an action verb."},
+     {q:"The soup <u>is</u> delicious.",options:["Action verb","Linking verb","Helping verb"],answer:"Linking verb",explain:"A linking verb (like is, am, are, was) joins the subject to a word that describes it. 'Is' links 'soup' to 'delicious' — no action happens — so it is a linking verb."},
+     {q:"They <u>are</u> running fast.",options:["Action verb","Linking verb","Helping verb"],answer:"Helping verb",explain:"A helping (auxiliary) verb works together with a main verb. Here 'are' helps the main verb 'running', so 'are' is a helping verb."},
+     {q:"He <u>feels</u> tired.",options:["Action verb","Linking verb","Helping verb"],answer:"Linking verb",explain:"'Feels' here does not show an action — it links 'he' to how he is ('tired'), so it is a linking verb."},
+     {q:"We <u>will</u> visit the park.",options:["Action verb","Linking verb","Helping verb"],answer:"Helping verb",explain:"'Will' helps the main verb 'visit' and shows it happens in the future, so 'will' is a helping verb."}]},
+   {id:"verbs3",title:"Correct Verb Form",type:"fillblank",level:2,instr:"Type the correct form of the verb in brackets.",items:[
+     {before:"She",after:"to school every day. (go)",accept:["goes"],explain:"In the present tense, after he/she/it we add -s (or -es) to the verb. With 'she' + 'every day' the correct form is 'goes'."},
+     {before:"They are",after:"outside now. (play)",accept:["playing"],explain:"The word 'are' plus 'now' signals the present continuous tense, which uses the -ing form. So 'play' becomes 'playing'."},
+     {before:"Yesterday he",after:"his homework. (do)",accept:["did"],explain:"'Yesterday' tells us it is past tense. The past tense of 'do' is the irregular form 'did'."},
+     {before:"We have",after:"all the cake. (eat)",accept:["eaten"],explain:"After 'have' we use the past participle. The past participle of 'eat' is the irregular form 'eaten' (eat → ate → eaten)."},
+     {before:"The bell",after:"a minute ago. (ring)",accept:["rang"],explain:"'A minute ago' means it already happened, so we need the past tense. The past tense of 'ring' is the irregular form 'rang'."}]},
+   {id:"verbs4",title:"Verb Type (type)",type:"typein",level:2,instr:"Type the verb type: action, linking or helping.",items:[
+     {prompt:"The pizza <b>smells</b> amazing.",accept:["linking","linking verb"],show:"linking",explain:"Here 'smells' does not show an action the pizza does — it links the pizza to how it is ('amazing'). So it is a linking verb."},
+     {prompt:"The crowd <b>roared</b>.",accept:["action","action verb"],show:"action",explain:"Roaring is something the crowd actively does, so 'roared' is an action verb."},
+     {prompt:"She <b>has</b> finished her book.",accept:["helping","helping verb","auxiliary"],show:"helping",explain:"'Has' works together with the main verb 'finished' to make the tense, so it is a helping (auxiliary) verb."},
+     {prompt:"They <b>built</b> a treehouse.",accept:["action","action verb"],show:"action",explain:"Building is a physical action they did, so 'built' is an action verb."}]},
+   {id:"verbs5",title:"Fix the Verb (type)",type:"typein",level:3,instr:"The verb is wrong. Type the whole sentence correctly.",items:[
+     {prompt:"He don't like tea.",accept:["he doesn't like tea","he does not like tea"],show:"He doesn't like tea.",explain:"With he, she or it we use 'doesn't' (does not), not 'don't'. So it becomes 'He doesn't like tea.'"},
+     {prompt:"They was playing outside.",accept:["they were playing outside"],show:"They were playing outside.",explain:"'They' is plural, so it needs 'were', not 'was'. The correct sentence is 'They were playing outside.'"},
+     {prompt:"She have finished.",accept:["she has finished"],show:"She has finished.",explain:"With he, she or it we use 'has', not 'have'. So it becomes 'She has finished.'"},
+     {prompt:"I goed home early.",accept:["i went home early"],show:"I went home early.",explain:"'Go' is an irregular verb, so its past tense is not 'goed' but 'went'. The correct sentence is 'I went home early.'"}]}
+  ]},
+
+ {id:"tenses",title:"Tenses",icon:"⏰",tileBg:"#dff1ff",
+  blurb:"Past, present and future — name and rewrite them.",
+  activities:[
+   {id:"tenses1",title:"Name the Tense",type:"mcq",level:1,instr:"Identify the tense of the sentence.",items:[
+     {q:"Roller coaster rides began in Russia.",options:["Present simple","Past simple","Present continuous","Future simple"],answer:"Past simple",explain:"The past simple tells of a finished action in the past, using the past form of the verb. 'Began' already happened and is over, so this is the past simple."},
+     {q:"People are enjoying the show.",options:["Present continuous","Past continuous","Present simple","Present perfect"],answer:"Present continuous",explain:"The present continuous = am/is/are + verb+ing, for something happening right now. 'Are enjoying' is happening now, so it is present continuous."},
+     {q:"She has finished her book.",options:["Past simple","Present perfect","Past perfect","Future simple"],answer:"Present perfect",explain:"The present perfect = has/have + past participle, for a past action that still matters now. 'Has finished' fits this, so it is present perfect."},
+     {q:"They will travel to Cape Town.",options:["Present simple","Future simple","Past simple","Present continuous"],answer:"Future simple",explain:"The future simple = will + verb, for something that has not happened yet. 'Will travel' points to the future, so it is future simple."},
+     {q:"We were watching the game.",options:["Present continuous","Past continuous","Past simple","Present perfect"],answer:"Past continuous",explain:"The past continuous = was/were + verb+ing, for an action that was in progress in the past. 'Were watching' fits this, so it is past continuous."}]},
+   {id:"tenses2",title:"Convert It",type:"mcq",level:1,instr:"Choose the correct conversion.",items:[
+     {q:"Past perfect of: “People make slides.”",options:["People made slides.","People had made slides.","People have made slides.","People were making slides."],answer:"People had made slides.",explain:"The past perfect = had + past participle, for the 'earlier' of two past actions. 'Make' becomes 'had made', so the answer is 'People had made slides.'"},
+     {q:"Present perfect of: “I eat lunch.”",options:["I ate lunch.","I was eating lunch.","I have eaten lunch.","I had eaten lunch."],answer:"I have eaten lunch.",explain:"The present perfect = have/has + past participle. The past participle of 'eat' is 'eaten', so it becomes 'I have eaten lunch.'"},
+     {q:"Future simple of: “She sings a song.”",options:["She sang a song.","She will sing a song.","She is singing a song.","She has sung a song."],answer:"She will sing a song.",explain:"The future simple = will + the base verb. So 'sings' becomes 'will sing', giving 'She will sing a song.'"}]},
+   {id:"tenses3",title:"Tense Rebuilder",type:"build",level:2,instr:"Build the sentence in the tense shown.",items:[
+     {prompt:"PAST CONTINUOUS: “The badger digs a tunnel.”",answer:["The","badger","was","digging","a","tunnel"],explain:"The past continuous = was/were + verb+ing. With the singular 'badger' we use 'was', and 'dig' becomes 'digging': 'The badger was digging a tunnel.'"},
+     {prompt:"FUTURE SIMPLE: “We watch the race.”",answer:["We","will","watch","the","race"],explain:"The future simple = will + base verb. So it becomes 'We will watch the race.'"},
+     {prompt:"PRESENT PERFECT: “They win the cup.”",answer:["They","have","won","the","cup"],explain:"The present perfect = have/has + past participle. The past participle of 'win' is 'won', giving 'They have won the cup.'"},
+     {prompt:"PAST PERFECT: “She finishes the test.”",answer:["She","had","finished","the","test"],explain:"The past perfect = had + past participle. 'Finish' becomes 'finished', giving 'She had finished the test.'"}]},
+   {id:"tenses4",title:"Verb Forms (type)",type:"typein",level:2,instr:"Type the form asked for.",items:[
+     {prompt:"Past simple of <b>run</b>",accept:["ran"],explain:"'Run' is irregular, so you don't add -ed. Its past simple is 'ran' (run → ran → run)."},
+     {prompt:"Past participle of <b>eat</b>",accept:["eaten"],explain:"'Eat' is irregular: eat → ate → eaten. The past participle (used after have/has) is 'eaten'."},
+     {prompt:"Past simple of <b>bring</b>",accept:["brought"],explain:"'Bring' is irregular, so its past simple is 'brought', not 'bringed'."},
+     {prompt:"Past participle of <b>write</b>",accept:["written"],explain:"'Write' is irregular: write → wrote → written. The past participle is 'written'."},
+     {prompt:"Past simple of <b>catch</b>",accept:["caught"],explain:"'Catch' is irregular, so its past simple is 'caught', not 'catched'."}]},
+   {id:"tenses5",title:"Rewrite the Tense (type)",type:"typein",level:3,instr:"Rewrite the whole sentence in the tense shown.",items:[
+     {prompt:"PAST CONTINUOUS: “The children play outside.”",accept:["the children were playing outside"],show:"The children were playing outside.",explain:"Past continuous = was/were + verb+ing. 'Children' is plural so we use 'were', and 'play' becomes 'playing': 'The children were playing outside.'"},
+     {prompt:"PRESENT PERFECT: “I finish my work.”",accept:["i have finished my work"],show:"I have finished my work.",explain:"Present perfect = have/has + past participle. 'Finish' becomes 'finished', giving 'I have finished my work.'"},
+     {prompt:"FUTURE SIMPLE: “She helps her mom.”",accept:["she will help her mom","she will help her mum"],show:"She will help her mom.",explain:"Future simple = will + base verb. So 'helps' becomes 'will help': 'She will help her mom.'"},
+     {prompt:"PAST SIMPLE: “They swim in the sea.”",accept:["they swam in the sea"],show:"They swam in the sea.",explain:"'Swim' is irregular, so its past simple is 'swam' (not 'swimmed'): 'They swam in the sea.'"}]}
+  ]},
+
+ {id:"adj",title:"Adjectives",icon:"🎨",tileBg:"#e9e3ff",
+  blurb:"Describing words, and how to compare them.",
+  activities:[
+   {id:"adj1",title:"Tap the Describers",type:"tapword",level:1,instr:"Tap every adjective.",items:[
+     {sentence:"The enormous roller coaster was scary.",answers:["enormous","scary"],explain:"Adjectives describe nouns. 'Enormous' and 'scary' both tell us what the roller coaster was like, so they are the adjectives."},
+     {sentence:"She wore a bright red dress.",answers:["bright","red"],explain:"Both 'bright' and 'red' describe the dress (what kind and what colour), so they are adjectives."},
+     {sentence:"The fierce badger has thick skin.",answers:["fierce","thick"],explain:"'Fierce' describes the badger and 'thick' describes the skin, so both are adjectives."},
+     {sentence:"A tall tower stood nearby.",answers:["tall"],explain:"'Tall' describes the tower, so it is the adjective. ('Nearby' tells where, so it is an adverb, not an adjective.)"}]},
+   {id:"adj2",title:"Compare It",type:"mcq",level:1,instr:"Pick the correct comparing form.",items:[
+     {q:"Comparative of 'big':",options:["big","bigger","biggest","more big"],answer:"bigger",explain:"The comparative compares two things. For a short word we add -er (and double the last letter here): big → bigger."},
+     {q:"Superlative of 'good':",options:["gooder","better","best","most good"],answer:"best",explain:"'Good' is irregular, so it does not follow the normal rule: good → better → best. The superlative (the most) is 'best'."},
+     {q:"Comparative of 'beautiful':",options:["beautifuler","more beautiful","beautifullest","most beautiful"],answer:"more beautiful",explain:"For long words (three or more syllables) we use 'more' instead of adding -er. So the comparative is 'more beautiful'."},
+     {q:"Superlative of 'happy':",options:["happier","happiest","most happy","more happy"],answer:"happiest",explain:"When a short word ends in 'y', the y changes to i before -est: happy → happier → happiest."}]},
+   {id:"adj3",title:"Finish the Compare",type:"fillblank",level:2,instr:"Type the correct form of the adjective in brackets.",items:[
+     {before:"A cheetah is",after:"than a lion. (fast)",accept:["faster"],explain:"The word 'than' tells us to compare two things (the comparative). For the short word 'fast' we add -er: 'faster'."},
+     {before:"This is the",after:"day ever! (good)",accept:["best"],explain:"'The ... ever' signals the superlative (comparing it to all). 'Good' is irregular: good → better → best."},
+     {before:"Mount Everest is the",after:"mountain. (high)",accept:["highest"],explain:"'The' before the adjective signals the superlative. For 'high' we add -est: 'highest'."},
+     {before:"A mouse is",after:"than an elephant. (small)",accept:["smaller"],explain:"'Than' means we are comparing two things, so we need the comparative. 'Small' + -er = 'smaller'."},
+     {before:"That was the",after:"movie I've seen. (bad)",accept:["worst"],explain:"'The ... I've seen' signals the superlative. 'Bad' is irregular: bad → worse → worst."}]},
+   {id:"adj4",title:"Describe It (type)",type:"typein",level:2,instr:"Type the comparing form asked for.",items:[
+     {prompt:"Comparative of <b>bad</b>",accept:["worse"],explain:"'Bad' is irregular, so the comparative is not 'badder' but 'worse' (bad → worse → worst)."},
+     {prompt:"Superlative of <b>far</b>",accept:["farthest","furthest"],show:"farthest",explain:"'Far' is irregular: far → farther/further → farthest/furthest. Both 'farthest' and 'furthest' are accepted."},
+     {prompt:"Comparative of <b>pretty</b>",accept:["prettier"],explain:"When a short word ends in 'y', change y to i and add -er: pretty → prettier."},
+     {prompt:"Superlative of <b>little</b> (amount)",accept:["least"],explain:"For amounts, 'little' is irregular: little → less → least. The superlative is 'least'."}]},
+   {id:"adj5",title:"Build with Adjectives (type)",type:"typein",level:3,instr:"Rewrite using the superlative form of the adjective.",items:[
+     {prompt:"This test is (easy) of them all.",accept:["this test is the easiest of them all"],show:"This test is the easiest of them all.",explain:"'Of them all' signals the superlative. For 'easy' we change y to i and add -est, and add 'the': 'the easiest'."},
+     {prompt:"He is a (talented) player in the team.",accept:["he is the most talented player in the team"],show:"He is the most talented player in the team.",explain:"'Talented' is a long word, so the superlative uses 'the most' instead of -est: 'the most talented'."},
+     {prompt:"That was the (funny) joke.",accept:["that was the funniest joke"],show:"That was the funniest joke.",explain:"'Funny' ends in 'y', so change y to i and add -est: 'the funniest'."}]}
+  ]},
+
+ {id:"adv",title:"Adverbs",icon:"💨",tileBg:"#d9f3ec",
+  blurb:"How, when, where and how often.",
+  activities:[
+   {id:"adv1",title:"Tap the Adverbs",type:"tapword",level:1,instr:"Tap every adverb.",items:[
+     {sentence:"The coaster zoomed quickly down the track.",answers:["quickly"],explain:"An adverb often tells HOW an action is done and ends in -ly. 'Quickly' tells how the coaster zoomed, so it is the adverb."},
+     {sentence:"She sang beautifully.",answers:["beautifully"],explain:"'Beautifully' tells us how she sang, so it is an adverb (of manner)."},
+     {sentence:"They arrived late.",answers:["late"],explain:"'Late' tells us when they arrived, so it is an adverb of time (even though it does not end in -ly)."},
+     {sentence:"The dog barked loudly yesterday.",answers:["loudly","yesterday"],explain:"'Loudly' tells HOW the dog barked and 'yesterday' tells WHEN, so both are adverbs."}]},
+   {id:"adv2",title:"Adverb Type",type:"mcq",level:1,instr:"What kind of adverb is underlined?",items:[
+     {q:"She danced <u>gracefully</u>.",options:["Manner (how)","Time (when)","Place (where)","Frequency (how often)"],answer:"Manner (how)",explain:"An adverb of manner tells HOW something is done. 'Gracefully' tells how she danced, so it is an adverb of manner."},
+     {q:"We will leave <u>tomorrow</u>.",options:["Manner (how)","Time (when)","Place (where)","Frequency (how often)"],answer:"Time (when)",explain:"An adverb of time tells WHEN. 'Tomorrow' tells us when we will leave, so it is an adverb of time."},
+     {q:"The cat is hiding <u>outside</u>.",options:["Manner (how)","Time (when)","Place (where)","Frequency (how often)"],answer:"Place (where)",explain:"An adverb of place tells WHERE. 'Outside' tells us where the cat is, so it is an adverb of place."},
+     {q:"He <u>always</u> brushes his teeth.",options:["Manner (how)","Time (when)","Place (where)","Frequency (how often)"],answer:"Frequency (how often)",explain:"An adverb of frequency tells HOW OFTEN. 'Always' tells us how often he does it, so it is an adverb of frequency."}]},
+   {id:"adv3",title:"Make an Adverb (type)",type:"typein",level:2,instr:"Turn the adjective into an adverb.",items:[
+     {prompt:"<b>quick</b>",accept:["quickly"],explain:"Most adverbs are made by adding -ly to the adjective. quick + ly = 'quickly'."},
+     {prompt:"<b>happy</b>",accept:["happily"],explain:"When the adjective ends in 'y', change y to i before adding -ly: happy → 'happily'."},
+     {prompt:"<b>careful</b>",accept:["carefully"],explain:"Just add -ly: careful + ly = 'carefully'."},
+     {prompt:"<b>good</b>",accept:["well"],explain:"'Good' is irregular — its adverb is not 'goodly' but 'well'."},
+     {prompt:"<b>gentle</b>",accept:["gently"],explain:"When the adjective ends in -le, drop the e and add -y: gentle → 'gently'."}]},
+   {id:"adv4",title:"Fill the Adverb",type:"fillblank",level:2,instr:"Type an adverb made from the word in brackets.",items:[
+     {before:"She spoke very",after:"so nobody heard. (soft)",accept:["softly"],explain:"Add -ly to make the adverb: soft → 'softly'. It tells us how she spoke."},
+     {before:"He finished the race",after:". (easy)",accept:["easily"],explain:"The adjective ends in 'y', so change y to i and add -ly: easy → 'easily'."},
+     {before:"They waited",after:"for the bus. (patient)",accept:["patiently"],explain:"Add -ly: patient → 'patiently'. It tells us how they waited."},
+     {before:"The team played",after:". (good)",accept:["well"],explain:"'Good' is irregular, so its adverb is 'well', not 'goodly'."}]},
+   {id:"adv5",title:"Adverb Type (type)",type:"typein",level:3,instr:"Type the kind of adverb: manner, time, place or frequency.",items:[
+     {prompt:"We go there <b>weekly</b>.",accept:["frequency"],explain:"'Weekly' tells us HOW OFTEN we go, so it is an adverb of frequency."},
+     {prompt:"Put the box <b>there</b>.",accept:["place"],explain:"'There' tells us WHERE to put it, so it is an adverb of place."},
+     {prompt:"She answered <b>honestly</b>.",accept:["manner"],explain:"'Honestly' tells us HOW she answered, so it is an adverb of manner."},
+     {prompt:"I'll see you <b>soon</b>.",accept:["time"],explain:"'Soon' tells us WHEN, so it is an adverb of time."}]}
+  ]},
+
+ {id:"sent",title:"Sentence Types",icon:"🧩",tileBg:"#ffe3e7",
+  blurb:"Simple, compound or complex — and the conjunction.",
+  activities:[
+   {id:"sent1",title:"Sort the Sentences",type:"sort",level:1,instr:"Simple, compound or complex?",buckets:["Simple","Compound","Complex"],items:[
+     {word:"The badger dug a hole.",answer:"Simple",explain:"A simple sentence has just one complete idea (one subject and one verb). This has one idea, so it is simple."},
+     {word:"I wanted to swim, but the pool was closed.",answer:"Compound",explain:"A compound sentence joins TWO complete ideas with a joining word like and, but or so. 'But' joins two full ideas here, so it is compound."},
+     {word:"Because it rained, we stayed inside.",answer:"Complex",explain:"A complex sentence has one main idea plus a part that cannot stand alone. 'Because it rained' can't stand alone, so it is complex."},
+     {word:"She sang and he danced.",answer:"Compound",explain:"Two complete ideas ('She sang' and 'he danced') are joined by 'and', so it is compound."},
+     {word:"When the bell rang, the learners left.",answer:"Complex",explain:"'When the bell rang' cannot stand on its own, so it is a complex sentence."},
+     {word:"The honey badger is fearless.",answer:"Simple",explain:"This is one complete idea with one subject and verb, so it is a simple sentence."}]},
+   {id:"sent2",title:"Find the Joiner",type:"tapword",level:1,instr:"Tap the conjunction (joining word).",items:[
+     {sentence:"I ran fast, but I lost the race.",answers:["but"],explain:"A conjunction joins two parts of a sentence. 'But' joins the two ideas here, so it is the conjunction."},
+     {sentence:"She stayed home because she was sick.",answers:["because"],explain:"'Because' joins the two parts and gives the reason, so it is the conjunction."},
+     {sentence:"We can walk or cycle to school.",answers:["or"],explain:"'Or' joins the two choices, so it is the conjunction."},
+     {sentence:"He smiled when he won.",answers:["when"],explain:"'When' joins the two parts and tells the time, so it is the conjunction."},
+     {sentence:"They were tired, so they rested.",answers:["so"],explain:"'So' joins the two ideas and shows the result, so it is the conjunction."}]},
+   {id:"sent3",title:"Name the Type (type)",type:"typein",level:2,instr:"Type: simple, compound or complex.",items:[
+     {prompt:"She sang and he danced.",accept:["compound"],explain:"Two complete ideas are joined by 'and', so this is a compound sentence."},
+     {prompt:"The dog ran home.",accept:["simple"],explain:"There is only one complete idea here, so it is a simple sentence."},
+     {prompt:"Although it was late, we kept playing.",accept:["complex"],explain:"'Although it was late' cannot stand alone, so this is a complex sentence."},
+     {prompt:"I like tea, but she likes coffee.",accept:["compound"],explain:"Two complete ideas are joined by 'but', so it is compound."},
+     {prompt:"We stayed inside because it was cold.",accept:["complex"],explain:"'Because it was cold' cannot stand on its own, so it is complex."}]},
+   {id:"sent4",title:"Add the Joiner",type:"fillblank",level:2,instr:"Type the best conjunction for the gap.",items:[
+     {before:"I was tired,",after:"I went to bed.",accept:["so"],explain:"Going to bed is the RESULT of being tired, and 'so' shows a result. So 'so' fits best."},
+     {before:"She was happy",after:"she had won.",accept:["because"],explain:"Winning is the REASON she was happy, and 'because' gives a reason. So 'because' fits best."},
+     {before:"You can have tea",after:"coffee.",accept:["or"],explain:"This offers a choice between two things, and 'or' shows a choice. So 'or' fits best."},
+     {before:"It was raining,",after:"we took umbrellas.",accept:["so"],explain:"Taking umbrellas is the RESULT of the rain, and 'so' shows a result. So 'so' fits best."}]},
+   {id:"sent5",title:"Join into One (type)",type:"typein",level:3,instr:"Join the two sentences into ONE compound sentence.",items:[
+     {prompt:"It rained. We stayed inside.",accept:["it rained so we stayed inside","it rained and we stayed inside"],show:"It rained, so we stayed inside.",explain:"To make a compound sentence, join the two complete ideas with a conjunction. Here 'so' shows the result: 'It rained, so we stayed inside.'"},
+     {prompt:"I like rugby. My sister likes netball.",accept:["i like rugby but my sister likes netball","i like rugby and my sister likes netball"],show:"I like rugby, but my sister likes netball.",explain:"The two ideas show a contrast, so join them with 'but': 'I like rugby, but my sister likes netball.'"},
+     {prompt:"He studied hard. He passed the test.",accept:["he studied hard so he passed the test","he studied hard and he passed the test"],show:"He studied hard, so he passed the test.",explain:"Passing is the result of studying, so join with 'so': 'He studied hard, so he passed the test.'"}]}
+  ]},
+
+ {id:"clause",title:"Phrases & Clauses",icon:"🧱",tileBg:"#fff0d6",
+  blurb:"A phrase has no verb; a clause does.",
+  activities:[
+   {id:"clause1",title:"Phrase or Clause?",type:"mcq",level:1,instr:"Is the underlined part a phrase or a clause?",items:[
+     {q:"<u>The big red bus</u> stopped.",options:["Phrase","Clause"],answer:"Phrase",explain:"A phrase is a group of words with NO verb of its own. 'The big red bus' has no verb inside it, so it is a phrase."},
+     {q:"<u>When the sun set</u>, we went home.",options:["Phrase","Clause"],answer:"Clause",explain:"A clause has its own subject and verb. 'The sun set' has a subject ('sun') and a verb ('set'), so it is a clause."},
+     {q:"She likes <u>ice cream with sauce</u>.",options:["Phrase","Clause"],answer:"Phrase",explain:"There is no verb inside 'ice cream with sauce', so it is a phrase, not a clause."},
+     {q:"<u>Because he was late</u>, he ran.",options:["Phrase","Clause"],answer:"Clause",explain:"'He was' is a subject plus a verb, so this group of words is a clause."},
+     {q:"I know <u>that you are kind</u>.",options:["Phrase","Clause"],answer:"Clause",explain:"'You are' has a subject and a verb, so this is a clause."}]},
+   {id:"clause2",title:"Main or Subordinate?",type:"mcq",level:1,instr:"What type of clause is underlined?",items:[
+     {q:"<u>She smiled</u> when she won.",options:["Main clause","Subordinate clause"],answer:"Main clause",explain:"A main clause makes complete sense on its own. 'She smiled' is a full sentence by itself, so it is the main clause."},
+     {q:"She smiled <u>when she won</u>.",options:["Main clause","Subordinate clause"],answer:"Subordinate clause",explain:"A subordinate clause cannot stand alone. 'When she won' needs the rest to make sense, so it is subordinate."},
+     {q:"<u>We stayed inside</u> because it rained.",options:["Main clause","Subordinate clause"],answer:"Main clause",explain:"'We stayed inside' makes complete sense on its own, so it is the main clause."},
+     {q:"<u>If you study hard</u>, you will pass.",options:["Main clause","Subordinate clause"],answer:"Subordinate clause",explain:"'If you study hard' depends on the next part and cannot stand alone, so it is subordinate."}]},
+   {id:"clause3",title:"Phrase or Clause (type)",type:"typein",level:2,instr:"Type 'phrase' or 'clause' for the underlined part.",items:[
+     {prompt:"<u>After the long game</u>, we ate.",accept:["phrase"],explain:"There is no verb inside 'after the long game', so it is a phrase."},
+     {prompt:"<u>After the game ended</u>, we ate.",accept:["clause"],explain:"'The game ended' has a subject and a verb, so this is a clause."},
+     {prompt:"She found <u>a box of old photos</u>.",accept:["phrase"],explain:"No verb inside the underlined words, so it is a phrase."},
+     {prompt:"We left <u>because it got dark</u>.",accept:["clause"],explain:"'It got' is a subject plus a verb, so it is a clause."}]},
+   {id:"clause4",title:"Tap the Subordinate Clause",type:"tapword",level:2,instr:"Tap the words of the subordinate (dependent) clause.",items:[
+     {sentence:"We went home because it was late.",answers:["because","it","was","late"],explain:"The subordinate clause cannot stand alone. 'Because it was late' depends on the main part, so it is the subordinate clause."},
+     {sentence:"When the rain stopped, we played.",answers:["When","the","rain","stopped"],explain:"'When the rain stopped' cannot stand on its own, so it is the subordinate clause."},
+     {sentence:"She smiled although she was tired.",answers:["although","she","was","tired"],explain:"'Although she was tired' depends on the rest, so it is the subordinate clause."}]},
+   {id:"clause5",title:"Main or Subordinate (type)",type:"typein",level:3,instr:"Type 'main' or 'subordinate' for the underlined clause.",items:[
+     {prompt:"We'll go outside <u>if the weather clears</u>.",accept:["subordinate"],explain:"'If the weather clears' depends on the main idea and cannot stand alone, so it is subordinate."},
+     {prompt:"<u>The crowd cheered</u> as the team scored.",accept:["main"],explain:"'The crowd cheered' makes full sense on its own, so it is the main clause."},
+     {prompt:"<u>Whenever he calls</u>, she answers.",accept:["subordinate"],explain:"'Whenever he calls' cannot stand alone, so it is subordinate."},
+     {prompt:"She packed a bag <u>before she left</u>.",accept:["subordinate"],explain:"'Before she left' depends on the rest of the sentence, so it is subordinate."}]}
+  ]},
+
+ {id:"voice",title:"Active & Passive",icon:"🔄",tileBg:"#dff1ff",
+  blurb:"Who does what? Flip the voice.",
+  activities:[
+   {id:"voice1",title:"Active or Passive?",type:"sort",level:1,instr:"Is the sentence active or passive?",buckets:["Active","Passive"],items:[
+     {word:"The honey badger ate the rodent.",answer:"Active",explain:"In the active voice the subject DOES the action. The badger is doing the eating, so this is active."},
+     {word:"The rodent was eaten by the badger.",answer:"Passive",explain:"In the passive voice the action is done TO the subject, using 'was/were + past participle + by'. 'Was eaten by' shows this, so it is passive."},
+     {word:"The Springboks won the cup.",answer:"Active",explain:"The Springboks are doing the action (winning), so this is active."},
+     {word:"The cup was won by the Springboks.",answer:"Passive",explain:"'Was won by' shows the action is done to the cup, so this is passive."},
+     {word:"France hosted the tournament.",answer:"Active",explain:"France is doing the action (hosting), so this is active."},
+     {word:"The tournament was hosted by France.",answer:"Passive",explain:"'Was hosted by' shows the action is done to the tournament, so it is passive."}]},
+   {id:"voice2",title:"Spot the Voice",type:"mcq",level:1,instr:"Active or passive voice?",items:[
+     {q:"The window was broken by the storm.",options:["Active","Passive"],answer:"Passive",explain:"'Was broken by' = was/were + past participle + by, which is the passive pattern. The window has the action done to it, so it is passive."},
+     {q:"Mom baked a cake.",options:["Active","Passive"],answer:"Active",explain:"Mom is doing the action (baking), so this is active."},
+     {q:"The letter was posted yesterday.",options:["Active","Passive"],answer:"Passive",explain:"'Was posted' shows the action is done to the letter, so it is passive."},
+     {q:"The team scored a try.",options:["Active","Passive"],answer:"Active",explain:"The team is doing the action (scoring), so this is active."}]},
+   {id:"voice3",title:"Make it Passive (build)",type:"build",level:2,instr:"Build the PASSIVE version.",items:[
+     {prompt:"South Africa defeated New Zealand.",answer:["New","Zealand","was","defeated","by","South","Africa"],explain:"To make the passive: put the object first, then was/were + past participle, then 'by' + the doer. 'New Zealand was defeated by South Africa.'"},
+     {prompt:"The badger ate the rodent.",answer:["The","rodent","was","eaten","by","the","badger"],explain:"Object first ('the rodent'), then 'was eaten', then 'by the badger': 'The rodent was eaten by the badger.'"},
+     {prompt:"The crowd cheered the team.",answer:["The","team","was","cheered","by","the","crowd"],explain:"Object first ('the team'), then 'was cheered by the crowd': 'The team was cheered by the crowd.'"}]},
+   {id:"voice4",title:"Make it Active (type)",type:"typein",level:2,instr:"Rewrite the sentence in the ACTIVE voice.",items:[
+     {prompt:"The ball was kicked by the boy.",accept:["the boy kicked the ball"],show:"The boy kicked the ball.",explain:"For the active voice, start with the DOER ('the boy') and use the plain action verb: 'The boy kicked the ball.'"},
+     {prompt:"The cake was baked by Mom.",accept:["mom baked the cake","mum baked the cake"],show:"Mom baked the cake.",explain:"Put the doer ('Mom') first and use the action verb: 'Mom baked the cake.'"},
+     {prompt:"The tickets were paid by Sandra.",accept:["sandra paid the tickets"],show:"Sandra paid the tickets.",explain:"Doer first ('Sandra') + action verb: 'Sandra paid the tickets.'"}]},
+   {id:"voice5",title:"Make it Passive (type)",type:"typein",level:3,instr:"Rewrite the whole sentence in the PASSIVE voice.",items:[
+     {prompt:"The dog chased the cat.",accept:["the cat was chased by the dog"],show:"The cat was chased by the dog.",explain:"Object first ('the cat'), then was/were + past participle, then 'by' + doer: 'The cat was chased by the dog.'"},
+     {prompt:"Neil enjoyed the rides.",accept:["the rides were enjoyed by neil"],show:"The rides were enjoyed by Neil.",explain:"'Rides' is plural, so we use 'were': 'The rides were enjoyed by Neil.'"},
+     {prompt:"The teacher marked the tests.",accept:["the tests were marked by the teacher"],show:"The tests were marked by the teacher.",explain:"Object first ('the tests') + were marked + by the teacher: 'The tests were marked by the teacher.'"},
+     {prompt:"Lightning struck the tower.",accept:["the tower was struck by lightning"],show:"The tower was struck by lightning.",explain:"Object first ('the tower') + was struck + by lightning: 'The tower was struck by lightning.'"}]}
+  ]},
+
+ {id:"speech",title:"Direct & Indirect",icon:"💬",tileBg:"#e9e3ff",
+  blurb:"Reported speech — change the quote, shift the tense.",
+  activities:[
+   {id:"speech1",title:"Report It",type:"mcq",level:1,instr:"Change to INDIRECT (reported) speech.",items:[
+     {q:"“I am tired,” said Tom.",options:["Tom said that he was tired.","Tom said that I am tired.","Tom says he is tired.","Tom said he is tired."],answer:"Tom said that he was tired.",explain:"In reported speech the pronoun and tense shift back: 'I' becomes 'he' and 'am' becomes 'was'. So: 'Tom said that he was tired.'"},
+     {q:"“We will win,” said the coach.",options:["The coach said that we will win.","The coach said that they would win.","The coach says they will win.","The coach said they will win."],answer:"The coach said that they would win.",explain:"'We' becomes 'they' and 'will' shifts back to 'would'. So: 'The coach said that they would win.'"},
+     {q:"“I can swim,” said Ben.",options:["Ben said that he can swim.","Ben said that he could swim.","Ben says he could swim.","Ben said I could swim."],answer:"Ben said that he could swim.",explain:"'I' becomes 'he' and 'can' shifts back to 'could'. So: 'Ben said that he could swim.'"}]},
+   {id:"speech2",title:"Quote It",type:"mcq",level:1,instr:"Change to DIRECT speech.",items:[
+     {q:"Tanya said that she was happy.",options:["“I am happy,” said Tanya.","“She is happy,” said Tanya.","“I was happy,” said Tanya.","Tanya said happy."],answer:"“I am happy,” said Tanya.",explain:"Going back to direct speech, 'she was' becomes 'I am' and we add quotation marks: '“I am happy,” said Tanya.'"},
+     {q:"He said that he had won.",options:["“I win,” he said.","“I have won,” he said.","“He won,” he said.","“I had won,” he said."],answer:"“I have won,” he said.",explain:"'He had won' becomes the spoken words 'I have won'. So: '“I have won,” he said.'"},
+     {q:"Mom said that she would cook.",options:["“I will cook,” said Mom.","“She will cook,” said Mom.","“I would cook,” said Mom.","“I cook,” said Mom."],answer:"“I will cook,” said Mom.",explain:"'She would' becomes the spoken 'I will'. So: '“I will cook,” said Mom.'"}]},
+   {id:"speech3",title:"Shift the Word",type:"fillblank",level:2,instr:"In reported speech, type the word that replaces the one in brackets.",items:[
+     {before:"“I am happy” → She said that",after:"was happy. (I)",accept:["she","he"],show:"she",explain:"When someone reports what another person said, 'I' changes to 'she' or 'he' (the person speaking)."},
+     {before:"“We won” → They said that",after:"had won. (we)",accept:["they"],explain:"'We' changes to 'they' when we report what the group said."},
+     {before:"“I am tired” → He said he",after:"tired. (am)",accept:["was"],explain:"The present 'am' shifts back to the past 'was' in reported speech."},
+     {before:"“I will go” → She said she",after:"go. (will)",accept:["would"],explain:"'Will' shifts back to 'would' in reported speech."}]},
+   {id:"speech4",title:"Report It (type)",type:"typein",level:2,instr:"Rewrite in indirect (reported) speech. Start with the name given.",items:[
+     {prompt:"“I am late,” said Sam.",accept:["sam said that he was late","sam said he was late"],show:"Sam said that he was late.",explain:"'I' becomes 'he' and 'am' shifts to 'was': 'Sam said that he was late.'"},
+     {prompt:"“We are ready,” said the boys.",accept:["the boys said that they were ready","the boys said they were ready"],show:"The boys said that they were ready.",explain:"'We' becomes 'they' and 'are' shifts to 'were': 'The boys said that they were ready.'"},
+     {prompt:"“I like honey,” said the badger.",accept:["the badger said that it liked honey","the badger said it liked honey"],show:"The badger said that it liked honey.",explain:"'I' becomes 'it' and the present 'like' shifts to the past 'liked': 'The badger said that it liked honey.'"}]},
+   {id:"speech5",title:"Quote It (type)",type:"typein",level:3,instr:"Rewrite in direct speech. Use quotation marks.",items:[
+     {prompt:"Ben said that he was hungry.",accept:["i am hungry said ben","“i am hungry” said ben"],show:"“I am hungry,” said Ben.",explain:"Back in direct speech, 'he was' becomes the spoken 'I am', inside quotation marks: '“I am hungry,” said Ben.'"},
+     {prompt:"She said that she had finished.",accept:["i have finished she said","“i have finished” she said"],show:"“I have finished,” she said.",explain:"'She had finished' becomes the spoken 'I have finished': '“I have finished,” she said.'"},
+     {prompt:"Dad said that he would help.",accept:["i will help said dad","“i will help” said dad"],show:"“I will help,” said Dad.",explain:"'He would' becomes the spoken 'I will': '“I will help,” said Dad.'"}]}
+  ]},
+
+ {id:"neg",title:"Negative Form",icon:"⛔",tileBg:"#d9f3ec",
+  blurb:"Turn sentences into their negative form.",
+  activities:[
+   {id:"neg1",title:"Say No",type:"mcq",level:1,instr:"Choose the correct negative form.",items:[
+     {q:"She likes apples.",options:["She not likes apples.","She does not like apples.","She do not like apples.","She don't likes apples."],answer:"She does not like apples.",explain:"For he/she/it in the present, the negative uses 'does not' plus the plain verb (no -s). So 'likes' becomes 'does not like'."},
+     {q:"They are playing.",options:["They are not playing.","They not are playing.","They do not playing.","They is not playing."],answer:"They are not playing.",explain:"When the sentence already has 'are', we just add 'not' after it: 'They are not playing.'"},
+     {q:"He can swim.",options:["He can not swims.","He cannot swim.","He do not swim.","He not can swim."],answer:"He cannot swim.",explain:"With 'can', the negative is 'cannot' (written as one word) plus the plain verb: 'He cannot swim.'"},
+     {q:"We went home.",options:["We not went home.","We did not went home.","We did not go home.","We don't go home."],answer:"We did not go home.",explain:"For the past tense, the negative uses 'did not' plus the PLAIN verb. So 'went' goes back to 'go': 'We did not go home.'"}]},
+   {id:"neg2",title:"Not That One",type:"mcq",level:1,instr:"Choose the correct negative form.",items:[
+     {q:"I have finished.",options:["I not have finished.","I have not finished.","I did not finished.","I don't finished."],answer:"I have not finished.",explain:"When there is a helping verb like 'have', add 'not' after it: 'I have not finished.'"},
+     {q:"The dog barks.",options:["The dog barks not.","The dog does not bark.","The dog do not bark.","The dog not barks."],answer:"The dog does not bark.",explain:"For 'the dog' (= it) in the present, use 'does not' + plain verb: 'The dog does not bark.'"},
+     {q:"She will come.",options:["She will not come.","She not will come.","She does not will come.","She will comes not."],answer:"She will not come.",explain:"With 'will', just add 'not' after it: 'She will not come.'"}]},
+   {id:"neg3",title:"Build the Negative",type:"build",level:2,instr:"Build the negative form.",items:[
+     {prompt:"He plays rugby.",answer:["He","does","not","play","rugby"],explain:"For he/she/it in the present, use 'does not' + the plain verb (no -s): 'He does not play rugby.'"},
+     {prompt:"They are happy.",answer:["They","are","not","happy"],explain:"The sentence has 'are', so just add 'not' after it: 'They are not happy.'"},
+     {prompt:"We saw the game.",answer:["We","did","not","see","the","game"],explain:"For the past, use 'did not' + the plain verb, so 'saw' goes back to 'see': 'We did not see the game.'"}]},
+   {id:"neg4",title:"Make Negative (type)",type:"typein",level:2,instr:"Rewrite the sentence in the negative form.",items:[
+     {prompt:"She sings in the choir.",accept:["she does not sing in the choir","she doesn't sing in the choir"],show:"She does not sing in the choir.",explain:"For 'she' in the present, use 'does not' + plain verb: 'She does not sing in the choir.'"},
+     {prompt:"They are ready.",accept:["they are not ready","they aren't ready"],show:"They are not ready.",explain:"The sentence has 'are', so just add 'not': 'They are not ready.'"},
+     {prompt:"I can see the stage.",accept:["i cannot see the stage","i can't see the stage","i can not see the stage"],show:"I cannot see the stage.",explain:"With 'can', the negative is 'cannot': 'I cannot see the stage.'"}]},
+   {id:"neg5",title:"Negative Past (type)",type:"typein",level:3,instr:"Rewrite the past-tense sentence in the negative.",items:[
+     {prompt:"The team won the match.",accept:["the team did not win the match","the team didn't win the match"],show:"The team did not win the match.",explain:"For the past tense, use 'did not' + the PLAIN verb, so 'won' goes back to 'win': 'The team did not win the match.'"},
+     {prompt:"She finished her homework.",accept:["she did not finish her homework","she didn't finish her homework"],show:"She did not finish her homework.",explain:"'Did not' + plain verb 'finish': 'She did not finish her homework.'"},
+     {prompt:"They ate all the food.",accept:["they did not eat all the food","they didn't eat all the food"],show:"They did not eat all the food.",explain:"'Did not' + plain verb 'eat' (not 'ate'): 'They did not eat all the food.'"}]}
+  ]},
+
+ {id:"int",title:"Questions",icon:"❓",tileBg:"#ffe3e7",
+  blurb:"Turn statements into questions.",
+  activities:[
+   {id:"int1",title:"Ask It",type:"mcq",level:1,instr:"Turn the statement into a question.",items:[
+     {q:"She is happy.",options:["She is happy?","Is she happy?","Does she happy?","Is happy she?"],answer:"Is she happy?",explain:"When the sentence has 'is', we make a question by moving 'is' to the front: 'Is she happy?'"},
+     {q:"They play soccer.",options:["Play they soccer?","Do they play soccer?","Does they play soccer?","They play soccer?"],answer:"Do they play soccer?",explain:"With a plain verb and a plural subject, start with 'Do': 'Do they play soccer?'"},
+     {q:"He can run fast.",options:["Can he run fast?","He can run fast?","Does he can run?","Run he can fast?"],answer:"Can he run fast?",explain:"When there is 'can', move it to the front: 'Can he run fast?'"},
+     {q:"The badger ate the rodent.",options:["Ate the badger the rodent?","Did the badger eat the rodent?","Does the badger ate the rodent?","The badger ate it?"],answer:"Did the badger eat the rodent?",explain:"For a past-tense question, start with 'Did' and use the plain verb: 'Did the badger eat the rodent?'"}]},
+   {id:"int2",title:"Question Check",type:"mcq",level:1,instr:"Turn the statement into a question.",items:[
+     {q:"You have finished.",options:["You have finished?","Have you finished?","Do you have finished?","Has you finished?"],answer:"Have you finished?",explain:"When there is 'have', move it to the front: 'Have you finished?'"},
+     {q:"It is raining.",options:["Is it raining?","It is raining?","Does it raining?","Is raining it?"],answer:"Is it raining?",explain:"Move 'is' to the front to make the question: 'Is it raining?'"},
+     {q:"She likes tea.",options:["Likes she tea?","Does she like tea?","Do she likes tea?","She likes tea?"],answer:"Does she like tea?",explain:"For 'she' + plain verb, start with 'Does' and drop the -s: 'Does she like tea?'"}]},
+   {id:"int3",title:"Build the Question",type:"build",level:2,instr:"Build the question. (Add the ? tile last.)",items:[
+     {prompt:"She is tired.",answer:["Is","she","tired","?"],explain:"Move 'is' to the front and add a question mark: 'Is she tired?'"},
+     {prompt:"They like honey.",answer:["Do","they","like","honey","?"],explain:"Start with 'Do' for a plural subject with a plain verb: 'Do they like honey?'"},
+     {prompt:"The team won.",answer:["Did","the","team","win","?"],explain:"For the past, start with 'Did' and use the plain verb 'win': 'Did the team win?'"}]},
+   {id:"int4",title:"Make a Question (type)",type:"typein",level:2,instr:"Rewrite the statement as a question.",items:[
+     {prompt:"He is your brother.",accept:["is he your brother","is he your brother?"],show:"Is he your brother?",explain:"Move 'is' to the front: 'Is he your brother?'"},
+     {prompt:"They are coming.",accept:["are they coming","are they coming?"],show:"Are they coming?",explain:"Move 'are' to the front: 'Are they coming?'"},
+     {prompt:"She plays the piano.",accept:["does she play the piano","does she play the piano?"],show:"Does she play the piano?",explain:"For 'she' + plain verb, start with 'Does' and drop the -s: 'Does she play the piano?'"}]},
+   {id:"int5",title:"Past Questions (type)",type:"typein",level:3,instr:"Rewrite the past-tense statement as a question.",items:[
+     {prompt:"The dog buried the bone.",accept:["did the dog bury the bone","did the dog bury the bone?"],show:"Did the dog bury the bone?",explain:"For a past-tense question, start with 'Did' and change the verb back to its plain form 'bury': 'Did the dog bury the bone?'"},
+     {prompt:"They watched the game.",accept:["did they watch the game","did they watch the game?"],show:"Did they watch the game?",explain:"'Did' + plain verb 'watch': 'Did they watch the game?'"},
+     {prompt:"She wrote a letter.",accept:["did she write a letter","did she write a letter?"],show:"Did she write a letter?",explain:"'Did' + plain verb 'write' (not 'wrote'): 'Did she write a letter?'"}]}
+  ]},
+
+ {id:"concord",title:"Concord",icon:"🤝",tileBg:"#fff0d6",
+  blurb:"Match the verb to its subject.",
+  activities:[
+   {id:"concord1",title:"Pick the Verb",type:"mcq",level:1,instr:"Choose the correct verb.",items:[
+     {q:"One of the students ___ reading.",options:["is","are"],answer:"is",explain:"The real subject is 'One' (not 'students'), and 'one' is singular, so it takes 'is'."},
+     {q:"The team ___ winning the match.",options:["is","are"],answer:"is",explain:"A team is one single group, so it is treated as singular and takes 'is'."},
+     {q:"Everybody ___ happy.",options:["was","were"],answer:"was",explain:"Words like everybody, somebody and nobody are singular, so they take 'was'."},
+     {q:"A bouquet of flowers ___ on the table.",options:["was","were"],answer:"was",explain:"The subject is 'a bouquet' (singular), not 'flowers', so it takes 'was'."}]},
+   {id:"concord2",title:"Tricky Concord",type:"mcq",level:1,instr:"Choose the correct verb.",items:[
+     {q:"Neither the boys nor the girl ___ to leave.",options:["want","wants"],answer:"wants",explain:"With 'neither...nor' (and 'either...or'), the verb matches the NEAREST subject. The nearest is 'the girl' (singular), so 'wants'."},
+     {q:"Most of the teachers ___ hard.",options:["work","works"],answer:"work",explain:"With 'most of', the verb follows the noun after 'of'. 'Teachers' is plural, so 'work'."},
+     {q:"There ___ many birds in the tree.",options:["is","are"],answer:"are",explain:"The real subject comes after 'there'. 'Many birds' is plural, so 'are'."},
+     {q:"Each of the players ___ a number.",options:["has","have"],answer:"has",explain:"'Each' is always singular, even with 'of the players', so it takes 'has'."}]},
+   {id:"concord3",title:"Fill the Verb",type:"fillblank",level:2,instr:"Type 'is' or 'are'.",items:[
+     {before:"The news",after:"on at seven.",accept:["is"],explain:"'News' looks plural but is uncountable (treated as singular), so it takes 'is'."},
+     {before:"My shoes",after:"too small.",accept:["are"],explain:"'Shoes' is plural (more than one), so it takes 'are'."},
+     {before:"Mathematics",after:"my favourite subject.",accept:["is"],explain:"Subjects like 'mathematics' look plural but are singular, so they take 'is'."},
+     {before:"The scissors",after:"on the desk.",accept:["are"],explain:"'Scissors' is treated as plural (a pair), so it takes 'are'."}]},
+   {id:"concord4",title:"Choose & Type",type:"typein",level:2,instr:"Type the correct verb from the brackets.",items:[
+     {prompt:"The couple (is / are) dancing.",accept:["is"],explain:"When a couple acts as one unit, it is treated as singular, so 'is'."},
+     {prompt:"Either my socks or your coat (is / are) on the floor.",accept:["is"],explain:"With 'either...or', match the nearest subject. The nearest is 'your coat' (singular), so 'is'."},
+     {prompt:"Half of the cake (is / are) gone.",accept:["is"],explain:"With 'half of', follow the noun after 'of'. 'Cake' is uncountable here, so 'is'."},
+     {prompt:"The women, as well as the man, (sing / sings) well.",accept:["sing"],explain:"The extra part 'as well as the man' is ignored for concord. The real subject 'the women' is plural, so 'sing'."}]},
+   {id:"concord5",title:"Fix the Concord (type)",type:"typein",level:3,instr:"The verb doesn't agree. Type the whole sentence correctly.",items:[
+     {prompt:"One of the dogs are barking.",accept:["one of the dogs is barking"],show:"One of the dogs is barking.",explain:"The subject is 'One' (singular), not 'dogs', so it needs 'is': 'One of the dogs is barking.'"},
+     {prompt:"The list of items were long.",accept:["the list of items was long"],show:"The list of items was long.",explain:"The subject is 'the list' (singular), not 'items', so it needs 'was': 'The list of items was long.'"},
+     {prompt:"Each of the players have a jersey.",accept:["each of the players has a jersey"],show:"Each of the players has a jersey.",explain:"'Each' is singular, so it needs 'has': 'Each of the players has a jersey.'"},
+     {prompt:"Everybody were tired.",accept:["everybody was tired"],show:"Everybody was tired.",explain:"'Everybody' is singular, so it needs 'was': 'Everybody was tired.'"}]}
+  ]},
+
+ {id:"subpred",title:"Subject & Predicate",icon:"✂️",tileBg:"#dff1ff",
+  blurb:"Who/what + what they do.",
+  activities:[
+   {id:"subpred1",title:"Tap the Subject",type:"tapword",level:1,instr:"Tap all the words of the SUBJECT.",items:[
+     {sentence:"The honey badger digs tunnels.",answers:["The","honey","badger"],explain:"The subject is who or what the sentence is about. The whole naming group 'The honey badger' is the subject."},
+     {sentence:"Roller coasters come in all shapes.",answers:["Roller","coasters"],explain:"'Roller coasters' is what the sentence is about, so it is the complete subject."},
+     {sentence:"South Africa won the cup.",answers:["South","Africa"],explain:"'South Africa' is who the sentence is about, so it is the subject."},
+     {sentence:"My little brother loves rugby.",answers:["My","little","brother"],explain:"The whole naming group 'My little brother' is the subject."}]},
+   {id:"subpred2",title:"Tap the Predicate",type:"tapword",level:1,instr:"Tap all the words of the PREDICATE.",items:[
+     {sentence:"The honey badger digs tunnels.",answers:["digs","tunnels"],explain:"The predicate is everything that is NOT the subject — it tells what the subject does. Here that is 'digs tunnels'."},
+     {sentence:"The team celebrated their win.",answers:["celebrated","their","win"],explain:"Everything after the subject 'The team' is the predicate: 'celebrated their win'."},
+     {sentence:"Lightning struck the old tower.",answers:["struck","the","old","tower"],explain:"After the subject 'Lightning', the predicate is 'struck the old tower'."},
+     {sentence:"The learners wrote the exam.",answers:["wrote","the","exam"],explain:"After the subject 'The learners', the predicate is 'wrote the exam'."}]},
+   {id:"subpred3",title:"Type the Subject",type:"typein",level:2,instr:"Type the complete subject of the sentence.",items:[
+     {prompt:"The fastest roller coaster is in Abu Dhabi.",accept:["the fastest roller coaster"],show:"The fastest roller coaster",explain:"The subject is the whole naming group the sentence is about: 'The fastest roller coaster'."},
+     {prompt:"Three noisy parrots sat on the fence.",accept:["three noisy parrots"],show:"Three noisy parrots",explain:"The whole group 'Three noisy parrots' is who the sentence is about, so it is the complete subject."},
+     {prompt:"My best friend moved to Durban.",accept:["my best friend"],show:"My best friend",explain:"'My best friend' is the complete subject."}]},
+   {id:"subpred4",title:"Type the Predicate",type:"typein",level:2,instr:"Type the complete predicate of the sentence.",items:[
+     {prompt:"The old clock stopped at midnight.",accept:["stopped at midnight"],show:"stopped at midnight",explain:"The predicate is everything after the subject 'The old clock': 'stopped at midnight'."},
+     {prompt:"Our new puppy chewed my shoe.",accept:["chewed my shoe"],show:"chewed my shoe",explain:"After the subject 'Our new puppy', the predicate is 'chewed my shoe'."},
+     {prompt:"The whole class cheered loudly.",accept:["cheered loudly"],show:"cheered loudly",explain:"After the subject 'The whole class', the predicate is 'cheered loudly'."}]},
+   {id:"subpred5",title:"Split It (type)",type:"typein",level:3,instr:"Type ONLY the subject, then a slash /, then the predicate.",items:[
+     {prompt:"The brave firefighters rescued the cat.",accept:["the brave firefighters / rescued the cat","the brave firefighters/rescued the cat"],show:"The brave firefighters / rescued the cat",explain:"Split after the naming group: subject 'The brave firefighters' / predicate 'rescued the cat'."},
+     {prompt:"A huge wave crashed onto the rocks.",accept:["a huge wave / crashed onto the rocks","a huge wave/crashed onto the rocks"],show:"A huge wave / crashed onto the rocks",explain:"Subject 'A huge wave' / predicate 'crashed onto the rocks'."},
+     {prompt:"My grandfather tells the best stories.",accept:["my grandfather / tells the best stories","my grandfather/tells the best stories"],show:"My grandfather / tells the best stories",explain:"Subject 'My grandfather' / predicate 'tells the best stories'."}]}
+  ]},
+
+ {id:"idioms",title:"Idioms",icon:"🗣️",tileBg:"#e9e3ff",
+  blurb:"Sayings that don't mean exactly what they say.",
+  activities:[
+   {id:"idioms1",title:"Match the Meaning",type:"match",level:1,instr:"Match each idiom to its meaning.",pairs:[
+     {left:"A piece of cake",right:"Very easy"},
+     {left:"Break a leg",right:"Good luck"},
+     {left:"Hit the books",right:"Study hard"},
+     {left:"Under the weather",right:"Feeling sick"},
+     {left:"Bob's your uncle",right:"It's that simple"},
+     {left:"Once in a blue moon",right:"Very rarely"}]},
+   {id:"idioms2",title:"Idioms in Action",type:"mcq",level:1,instr:"What does the idiom mean here?",items:[
+     {q:"The test was 'a piece of cake'. It was ___.",options:["very easy","very hard","delicious","boring"],answer:"very easy",explain:"An idiom doesn't mean its words literally. 'A piece of cake' means something was very easy — it has nothing to do with real cake."},
+     {q:"“It's raining cats and dogs” means it's raining ___.",options:["very lightly","very heavily","with animals","a little"],answer:"very heavily",explain:"This idiom means it is raining very hard — not that animals are falling from the sky."},
+     {q:"He 'let the cat out of the bag'. He ___.",options:["lost a pet","told a secret","made a mess","told a joke"],answer:"told a secret",explain:"This idiom means he accidentally revealed a secret."},
+     {q:"We see them 'once in a blue moon'. We see them ___.",options:["every day","very rarely","at night","on holidays"],answer:"very rarely",explain:"'Once in a blue moon' means something happens very seldom."}]},
+   {id:"idioms3",title:"Finish the Idiom",type:"fillblank",level:2,instr:"Type the missing word to complete the idiom.",items:[
+     {before:"It's a piece of",after:". (= very easy)",accept:["cake"],explain:"The full idiom is 'a piece of cake', which means very easy."},
+     {before:"Break a",after:"! (= good luck)",accept:["leg"],explain:"The full idiom is 'break a leg', which is a way of wishing someone good luck."},
+     {before:"I'm feeling under the",after:". (= sick)",accept:["weather"],explain:"The full idiom is 'under the weather', which means feeling sick."},
+     {before:"Once in a blue",after:". (= rarely)",accept:["moon"],explain:"The full idiom is 'once in a blue moon', which means very rarely."}]},
+   {id:"idioms4",title:"Say the Meaning (type)",type:"typein",level:2,instr:"Type what the idiom means in a few words.",items:[
+     {prompt:"to 'hit the books'",accept:["study","study hard","to study"],show:"study hard",explain:"'Hit the books' has nothing to do with hitting — it means to study hard."},
+     {prompt:"'a piece of cake'",accept:["easy","very easy","it is easy"],show:"very easy",explain:"'A piece of cake' means something is very easy."},
+     {prompt:"to 'break the ice'",accept:["start a conversation","start talking","make people relax","get people talking"],show:"start a conversation",explain:"'Break the ice' means to start a conversation and make people feel relaxed."}]},
+   {id:"idioms5",title:"Use It Right (type)",type:"typein",level:3,instr:"Type the idiom that fits the meaning.",items:[
+     {prompt:"Meaning: 'very easy' — a p____ of c____",accept:["a piece of cake","piece of cake"],show:"a piece of cake",explain:"The idiom for 'very easy' is 'a piece of cake'."},
+     {prompt:"Meaning: 'good luck' — b____ a l___",accept:["break a leg"],show:"break a leg",explain:"The idiom for wishing someone good luck is 'break a leg'."},
+     {prompt:"Meaning: 'very rarely' — once in a b___ m___",accept:["once in a blue moon"],show:"once in a blue moon",explain:"The idiom for 'very rarely' is 'once in a blue moon'."}]}
+  ]},
+
+ {id:"poetic",title:"Poetic Devices",icon:"✨",tileBg:"#d9f3ec",
+  blurb:"Simile, metaphor, personification and more.",
+  activities:[
+   {id:"poetic1",title:"Match the Device",type:"match",level:1,instr:"Match each device to an example.",pairs:[
+     {left:"Simile",right:"As fast as lightning"},
+     {left:"Metaphor",right:"Life is a roller coaster"},
+     {left:"Personification",right:"The wind whispered softly"},
+     {left:"Alliteration",right:"Big brave badgers battle"},
+     {left:"Onomatopoeia",right:"The bees went buzz"},
+     {left:"Hyperbole",right:"I've told you a million times"}]},
+   {id:"poetic2",title:"Name the Device",type:"mcq",level:1,instr:"Which figure of speech is used?",items:[
+     {q:"“The stars danced in the sky.”",options:["Simile","Metaphor","Personification","Onomatopoeia"],answer:"Personification",explain:"Personification gives human actions to non-human things. Stars cannot really dance, so giving them that human action is personification."},
+     {q:"“She is as busy as a bee.”",options:["Simile","Metaphor","Hyperbole","Alliteration"],answer:"Simile",explain:"A simile compares two things using 'like' or 'as'. This uses 'as ... as', so it is a simile."},
+     {q:"“Boom! Crash! Bang!”",options:["Onomatopoeia","Metaphor","Simile","Irony"],answer:"Onomatopoeia",explain:"Onomatopoeia is a word that copies a real sound. 'Boom', 'crash' and 'bang' imitate sounds, so this is onomatopoeia."},
+     {q:"“He was a lion in the fight.”",options:["Simile","Metaphor","Personification","Hyperbole"],answer:"Metaphor",explain:"A metaphor says one thing IS another, without using 'like' or 'as'. He is called a lion directly, so it is a metaphor."}]},
+   {id:"poetic3",title:"Name It (type)",type:"typein",level:2,instr:"Type the figure of speech used.",items:[
+     {prompt:"“I'm so hungry I could eat a horse.”",accept:["hyperbole"],explain:"Hyperbole is a huge exaggeration that is not meant literally. Nobody can eat a whole horse, so it is hyperbole."},
+     {prompt:"“The thunder grumbled in the distance.”",accept:["personification"],explain:"'Grumbled' is a human action given to the thunder, so this is personification."},
+     {prompt:"“As quiet as a mouse.”",accept:["simile"],explain:"It compares two things using 'as ... as', so it is a simile."},
+     {prompt:"“The snake slithered and hissed.”",accept:["onomatopoeia","alliteration"],show:"onomatopoeia",explain:"'Hissed' copies the real sound a snake makes, so this is onomatopoeia."}]},
+   {id:"poetic4",title:"Simile vs Metaphor",type:"typein",level:2,instr:"Type 'simile' or 'metaphor'.",items:[
+     {prompt:"“Her smile was like sunshine.”",accept:["simile"],explain:"It uses the word 'like' to compare, so it is a simile."},
+     {prompt:"“Her smile was sunshine.”",accept:["metaphor"],explain:"It says the smile WAS sunshine, with no 'like' or 'as', so it is a metaphor."},
+     {prompt:"“The classroom was a zoo.”",accept:["metaphor"],explain:"It says the classroom WAS a zoo directly, so it is a metaphor."},
+     {prompt:"“He runs like the wind.”",accept:["simile"],explain:"It uses 'like' to compare, so it is a simile."}]},
+   {id:"poetic5",title:"Write an Example (type)",type:"typein",level:3,instr:"Complete the example so it matches the device.",items:[
+     {prompt:"onomatopoeia: The fire went ___",accept:["crackle","crackle crackle","crack","pop","hiss","sizzle","whoosh","roar"],show:"crackle",explain:"Onomatopoeia copies a sound. A sound word like 'crackle' fits what fire does."},
+     {prompt:"alliteration: The ___ snake slithered (word starting with 's')",accept:["slippery","slimy","sneaky","silent","speedy","scaly","slithering","slow","small"],show:"slippery",explain:"Alliteration repeats the same starting sound. An 's' word matches 'snake slithered', e.g. 'slippery'."},
+     {prompt:"simile: As brave as a ___",accept:["lion","tiger"],show:"lion",explain:"A simile compares using 'as ... as'. 'As brave as a lion' is a well-known example."}]}
+  ]}
+];
+
+/* ============================= STATE ============================= */
+const TYPE_LABEL={sort:"Sort it",tapword:"Tap the word",build:"Build it",match:"Match",mcq:"Quiz",typein:"Type it",fillblank:"Fill the blank"};
+const LV_NAME={1:"Easy",2:"Interm.",3:"Expert"};
+const LS_KEY="eeq_progress_v3";
+let progress=load();let diffFilter=loadStr("eeq_diff","all");
+function load(){try{return JSON.parse(localStorage.getItem(LS_KEY))||{}}catch(e){return {}}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(progress))}catch(e){}}
+function loadStr(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}}
+function saveStr(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+function allActivities(){const a=[];DATA.forEach(t=>t.activities.forEach(ac=>a.push({topic:t,act:ac})));return a;}
+function activityMax(ac){return ac.type==="match"?ac.pairs.length:ac.items.length;}
+function starsFor(pct){return pct>=90?3:pct>=70?2:pct>=50?1:0;}
+function visibleActs(topic){return topic.activities.filter(ac=>diffFilter==="all"||String(ac.level)===diffFilter);}
+
+const screens={home:el("home"),topic:el("topic"),play:el("play"),done:el("done")};
+function el(id){return document.getElementById(id);}
+function show(name){for(const k in screens)screens[k].hidden=(k!==name);window.scrollTo(0,0);}
+
+el("homeLink").onclick=()=>{renderHome();show("home");};
+document.querySelectorAll("[data-nav]").forEach(b=>b.onclick=()=>{if(b.dataset.nav==="home"){renderHome();show("home");}});
+
+const themeBtn=el("themeBtn");
+themeBtn.onclick=()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const isDark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+  document.documentElement.setAttribute("data-theme",isDark?"light":"dark");
+  saveStr("eeq_theme",isDark?"light":"dark");
+};
+try{const t=localStorage.getItem("eeq_theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+
+document.querySelectorAll("#seg button").forEach(b=>b.onclick=()=>{
+  diffFilter=b.dataset.lv;saveStr("eeq_diff",diffFilter);
+  document.querySelectorAll("#seg button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.lv===diffFilter)));
+  renderHome();
+});
+
+/* ============================= HOME ============================= */
+function renderHome(){
+  document.querySelectorAll("#seg button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.lv===diffFilter)));
+  const acts=allActivities();const totalStars=acts.length*3;
+  let earned=0,done=0;
+  acts.forEach(({act})=>{const p=progress[act.id];if(p){earned+=p.stars;if(p.stars>0)done++;}});
+  el("xpVal").textContent=totalXP();el("starVal").textContent=earned;
+  el("topicCount").textContent=DATA.length;el("actCount").textContent=acts.length;el("starTotal2").textContent=totalStars;
+  el("topicDone").textContent=done+" / "+acts.length+" done";
+  el("homeProgress").style.width=(earned/totalStars*100)+"%";
+  const grid=el("topicGrid");grid.innerHTML="";
+  DATA.forEach(t=>{
+    const vis=visibleActs(t);let e=0;const m=t.activities.length*3;
+    t.activities.forEach(ac=>{const p=progress[ac.id];if(p)e+=p.stars;});
+    const allDone=t.activities.every(ac=>progress[ac.id]&&progress[ac.id].stars>0);
+    const card=document.createElement("button");card.className="card";card.style.setProperty("--tile-bg",t.tileBg);
+    card.innerHTML=`
+      <div class="tophalf"><span class="tile">${t.icon}</span>
+        <div style="min-width:0"><h3>${t.title}</h3><div class="sub">${vis.length} activit${vis.length===1?"y":"ies"}${diffFilter!=="all"?" · "+LV_NAME[+diffFilter]:""}</div></div></div>
+      <div class="foot"><span class="stars">${starBar(e,m)}</span>
+        <span class="pill ${allDone?"done":""}">${allDone?"✓ Done":e+"/"+m+" ★"}</span></div>`;
+    card.onclick=()=>openTopic(t);grid.appendChild(card);
+  });
+}
+function totalXP(){let x=0;for(const k in progress)x+=(progress[k].xp||0);return x;}
+function starBar(earned,max){let s="";for(let i=0;i<max;i++)s+=`<span class="${i<earned?"":"off"}">★</span>`;return s;}
+
+/* ============================= TOPIC ============================= */
+let currentTopic=null;
+function openTopic(t){
+  currentTopic=t;
+  el("tTile").textContent=t.icon;el("tTile").style.background=t.tileBg;
+  el("tTitle").textContent=t.title;el("tBlurb").textContent=t.blurb;
+  let e=0;const m=t.activities.length*3;t.activities.forEach(ac=>{const p=progress[ac.id];if(p)e+=p.stars;});
+  el("tStars").innerHTML=`<span class="stars">${starBar(e,m)}</span>`;
+  const list=el("actList");list.innerHTML="";
+  const vis=visibleActs(t);
+  vis.forEach((ac,i)=>{
+    const p=progress[ac.id];
+    const row=document.createElement("button");row.className="arow";
+    row.innerHTML=`
+      <span class="num">${i+1}</span>
+      <span class="mid"><b>${ac.title}</b>
+        <small><span class="lvpill lv${ac.level}">${LV_NAME[ac.level]}</span> <span class="typetag">${TYPE_LABEL[ac.type]}</span>${activityMax(ac)} Q${p?" · best "+p.best+"%":""}</small></span>
+      <span class="stars" style="font-size:13px">${p?starBar(p.stars,3):starBar(0,3)}</span>
+      <span class="go">›</span>`;
+    row.onclick=()=>startActivity(t,ac);list.appendChild(row);
+  });
+  el("filterNote").textContent=diffFilter==="all"?"Showing all levels. Change the level on the home screen.":("Showing "+LV_NAME[+diffFilter]+" activities only · change this on the home screen.");
+  show("topic");
+}
+
+/* ============================= PLAY ============================= */
+let game=null;
+function startActivity(topic,act){
+  game={topic,act,i:0,got:0,max:activityMax(act),answered:false};
+  el("qTotal").textContent=(act.type==="match")?1:act.items.length;
+  renderQuestion();show("play");
+}
+el("quitBtn").onclick=()=>{openTopic(game.topic);};
+
+function renderQuestion(){
+  const {act,i}=game;game.answered=false;
+  const total=(act.type==="match")?1:act.items.length;
+  el("qIndex").textContent=i+1;el("qProgress").style.width=(i/total*100)+"%";el("qScore").textContent=game.got;
+  const card=el("qCard");card.innerHTML="";hideFeedback();el("actionRow").innerHTML="";
+  const r={mcq:renderMCQ,sort:renderSort,tapword:renderTap,build:renderBuild,match:renderMatch,typein:renderText,fillblank:renderText};
+  r[act.type](card,act.type==="match"?act:act.items[i]);
+}
+function instrEl(t){return `<div class="qinstr">${t}</div>`;}
+
+function renderMCQ(card,item){
+  const short=item.options.every(o=>o.length<=14)&&item.options.length<=4;
+  card.innerHTML=instrEl(game.act.instr)+`<div class="qtext">${item.q}</div><div class="opts ${short?"cols2":""}" id="opts"></div>`;
+  const box=el("opts");const L=["A","B","C","D","E"];
+  item.options.forEach((o,idx)=>{
+    const b=document.createElement("button");b.className="opt";b.innerHTML=`<span class="mk">${L[idx]}</span><span>${o}</span>`;
+    b.onclick=()=>{
+      if(game.answered)return;game.answered=true;const correct=o===item.answer;
+      box.querySelectorAll(".opt").forEach(x=>{const t=x.querySelector("span:last-child").textContent;
+        if(t===item.answer)x.classList.add("correct");else if(x===b)x.classList.add("wrong");else x.classList.add("dim");});
+      finishItem(correct?1:0,item.explain,correct);
+    };box.appendChild(b);
+  });
+}
+function renderSort(card,act,item){
+  card.innerHTML=instrEl(act.instr)+`<div class="wordhero">${item.word}</div><div class="opts cols2" id="opts"></div>`;
+  const box=el("opts");
+  act.buckets.forEach(bk=>{
+    const b=document.createElement("button");b.className="opt";b.style.justifyContent="center";b.innerHTML=`<span>${bk}</span>`;
+    b.onclick=()=>{
+      if(game.answered)return;game.answered=true;const correct=bk===item.answer;
+      box.querySelectorAll(".opt").forEach(x=>{const t=x.textContent;
+        if(t===item.answer)x.classList.add("correct");else if(x===b)x.classList.add("wrong");else x.classList.add("dim");});
+      finishItem(correct?1:0,item.explain,correct);
+    };box.appendChild(b);
+  });
+}
+const norm=s=>s.toLowerCase().replace(/['’`]/g,"'").replace(/[^a-z0-9' ]/g,"").replace(/\s+/g," ").trim();
+function renderTap(card,item){
+  const sel=new Set();
+  card.innerHTML=instrEl(game.act.instr)+`<div class="qsub">${item.sentence}</div><div class="sent" id="sent"></div>`;
+  const sent=el("sent");const words=item.sentence.split(/\s+/);
+  words.forEach((w,idx)=>{
+    const t=document.createElement("button");t.className="tok";t.textContent=w;t.dataset.i=idx;
+    t.onclick=()=>{if(game.answered)return;if(sel.has(idx)){sel.delete(idx);t.classList.remove("sel");}else{sel.add(idx);t.classList.add("sel");}};
+    sent.appendChild(t);
+  });
+  const btn=document.createElement("button");btn.className="btn";btn.textContent="Check answer";
+  btn.onclick=()=>{
+    if(game.answered)return;game.answered=true;
+    const chosen=[...sel].map(i=>norm(words[i])).sort();const want=item.answers.map(norm).sort();
+    const correct=chosen.length===want.length&&chosen.every((v,k)=>v===want[k]);
+    const wantSet=new Set(item.answers.map(norm));
+    sent.querySelectorAll(".tok").forEach(tok=>{
+      const nw=norm(tok.textContent);const idx=+tok.dataset.i;tok.classList.remove("sel");
+      if(wantSet.has(nw)){if(sel.has(idx))tok.classList.add("ok");else tok.classList.add("miss");}
+      else if(sel.has(idx))tok.classList.add("err");
+    });
+    finishItem(correct?1:0,item.explain,correct);
+  };
+  el("actionRow").appendChild(btn);
+}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function renderBuild(card,item){
+  const placed=[];
+  card.innerHTML=instrEl(game.act.instr)+`<div class="qtext" style="font-size:18px">${item.prompt}</div><div class="answerzone" id="zone"></div><div class="bank" id="bank"></div>`;
+  const zone=el("zone"),bank=el("bank");
+  let tiles=shuffle(item.answer.map((w,idx)=>({w,idx})));
+  if(tiles.length>1&&tiles.every((t,k)=>t.idx===k))tiles.push(tiles.shift());
+  tiles.forEach(obj=>{
+    const b=document.createElement("button");b.className="tile-w";b.textContent=obj.w;
+    b.onclick=()=>{
+      if(game.answered||b.classList.contains("used"))return;
+      b.classList.add("used");placed.push(obj.idx);
+      const z=document.createElement("button");z.className="tile-w inzone";z.textContent=obj.w;
+      z.onclick=()=>{if(game.answered)return;const pos=placed.indexOf(obj.idx);if(pos>-1)placed.splice(pos,1);z.remove();b.classList.remove("used");};
+      zone.appendChild(z);
+    };bank.appendChild(b);
+  });
+  const btn=document.createElement("button");btn.className="btn";btn.textContent="Check sentence";
+  btn.onclick=()=>{
+    if(game.answered||placed.length===0)return;game.answered=true;
+    const built=placed.map(i=>item.answer[i]);
+    const correct=built.length===item.answer.length&&built.every((w,k)=>w===item.answer[k]);
+    zone.innerHTML="";item.answer.forEach(w=>{const z=document.createElement("button");z.className="tile-w";z.style.borderColor="var(--good)";z.style.background="var(--good-soft)";z.textContent=w;zone.appendChild(z);});
+    finishItem(correct?1:0,item.explain,correct,correct?null:"Answer: "+item.answer.join(" "));
+  };
+  el("actionRow").appendChild(btn);
+}
+function renderMatch(card,act){
+  let activeLeft=null,doneCount=0,mistakes=0;const total=act.pairs.length;
+  card.innerHTML=instrEl(act.instr)+`<div class="matchgrid"><div class="col" id="colL"></div><div class="col" id="colR"></div></div>`;
+  const colL=el("colL"),colR=el("colR");
+  const lefts=act.pairs.map((p,idx)=>({text:p.left,idx}));
+  const rights=shuffle(act.pairs.map((p,idx)=>({text:p.right,idx})));
+  lefts.forEach(o=>{
+    const b=document.createElement("button");b.className="mitem";b.textContent=o.text;b.dataset.idx=o.idx;
+    b.onclick=()=>{if(b.classList.contains("done"))return;colL.querySelectorAll(".mitem").forEach(x=>x.classList.remove("active"));activeLeft=o.idx;b.classList.add("active");};
+    colL.appendChild(b);
+  });
+  rights.forEach(o=>{
+    const b=document.createElement("button");b.className="mitem";b.textContent=o.text;b.dataset.idx=o.idx;
+    b.onclick=()=>{
+      if(b.classList.contains("done")||activeLeft===null)return;
+      const lb=colL.querySelector(`.mitem[data-idx="${activeLeft}"]`);
+      if(o.idx===activeLeft){b.classList.add("done");lb.classList.remove("active");lb.classList.add("done");activeLeft=null;doneCount++;
+        if(doneCount===total)finishMatch(Math.max(0,total-mistakes),total);
+      }else{mistakes++;b.classList.add("flash");lb.classList.add("flash");setTimeout(()=>{b.classList.remove("flash");lb.classList.remove("flash");},450);}
+    };colR.appendChild(b);
+  });
+}
+function renderText(card,item){
+  const fill=game.act.type==="fillblank";
+  let html=instrEl(game.act.instr);
+  if(fill){html+=`<div class="fillrow">${item.before?item.before+" ":""}<input id="ti" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"> ${item.after||""}</div>`;}
+  else{html+=`<div class="qtext" style="font-size:19px">${item.prompt}</div><input id="ti" class="tinput" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type your answer…">`;}
+  card.innerHTML=html;
+  const inp=el("ti");
+  const check=()=>{
+    if(game.answered)return;const val=inp.value.trim();if(!val)return;game.answered=true;
+    const ok=item.accept.some(a=>norm(a)===norm(val));
+    inp.classList.add(ok?"ok":"err");inp.disabled=true;
+    const model=item.show||item.accept[0];
+    finishItem(ok?1:0,item.explain,ok,ok?null:"Answer: "+model);
+  };
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();if(game.answered)advance();else check();}});
+  const btn=document.createElement("button");btn.className="btn";btn.textContent="Check answer";btn.onclick=check;
+  el("actionRow").appendChild(btn);setTimeout(()=>inp.focus(),50);
+}
+
+let advance=()=>{};
+function finishItem(got,explain,correct,extra){
+  game.got+=got;el("qScore").textContent=game.got;
+  showFeedback(correct,explain,extra);
+  const total=game.act.items.length;const last=game.i>=total-1;
+  advance=()=>{if(last)finishActivity();else{game.i++;renderQuestion();}};
+  const btn=document.createElement("button");btn.className="btn";btn.textContent=last?"See results":"Next →";btn.onclick=advance;
+  el("actionRow").innerHTML="";el("actionRow").appendChild(btn);
+}
+function finishMatch(got,total){
+  game.got=got;game.answered=true;el("qScore").textContent=game.got;
+  showFeedback(got===total,got===total?"Perfect matching! You linked every idiom to the right meaning without a slip.":"Nice — all matched. You got "+got+" out of "+total+" right on the first try.",null);
+  const btn=document.createElement("button");btn.className="btn";btn.textContent="See results";btn.onclick=finishActivity;
+  el("actionRow").innerHTML="";el("actionRow").appendChild(btn);
+}
+const GOOD=["Nailed it!","Correct!","Spot on!","Yes!","Lekker!","That's right!"];
+const BADM=["Not quite","Almost!","Close one","Keep going"];
+function showFeedback(correct,why,extra){
+  const f=el("feedback");f.className="feedback show "+(correct?"good":"bad");
+  el("fVerdict").textContent=(correct?"✓ ":"✗ ")+(correct?GOOD[Math.floor(Math.random()*GOOD.length)]:BADM[Math.floor(Math.random()*BADM.length)]);
+  el("fWhy").innerHTML=(why||"")+(extra?`<br><b>${extra}</b>`:"");
+}
+function hideFeedback(){el("feedback").className="feedback";}
+
+function finishActivity(){
+  const {act,topic}=game;const pct=Math.round(game.got/game.max*100);const stars=starsFor(pct);
+  const prev=progress[act.id];const xp=game.got*10;
+  if(!prev)progress[act.id]={best:pct,stars,xp};
+  else progress[act.id]={best:Math.max(prev.best,pct),stars:Math.max(prev.stars,stars),xp:Math.max(prev.xp,xp)};
+  save();
+  el("qProgress").style.width="100%";
+  el("rTopic").textContent=topic.title+"  ·  "+act.title;
+  el("rStars").innerHTML=[0,1,2].map(i=>`<span class="${i<stars?"":"off"}">★</span>`).join("");
+  el("rPct").textContent=pct+"%";el("rScore").textContent=game.got+" / "+game.max+" correct  ·  +"+(game.got*10)+" XP";
+  el("rTitle").textContent=pct>=90?"Outstanding!":pct>=70?"Well done!":pct>=50?"Good effort!":"Keep practising!";
+  el("rMsg").textContent=pct>=90?"You've mastered this one.":pct>=70?"Almost perfect — go for 3 stars!":pct>=50?"You're getting there.":"Try again to boost your score.";
+  const vis=visibleActs(topic);const vIdx=vis.indexOf(act);const nextBtn=el("rNext");
+  if(vIdx>-1&&vIdx<vis.length-1){nextBtn.hidden=false;nextBtn.onclick=()=>startActivity(topic,vis[vIdx+1]);}else nextBtn.hidden=true;
+  el("rAgain").onclick=()=>startActivity(topic,act);el("rBack").onclick=()=>openTopic(topic);
+  show("done");if(stars>=3)burst();
+}
+function burst(){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  const cv=el("confetti");cv.hidden=false;const ctx=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
+  const cols=["#8c1d2c","#e8a712","#1a9d68","#b22f45","#f6c84a"];const ps=[];
+  for(let i=0;i<120;i++)ps.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*12,vy:Math.random()*-12-4,c:cols[i%cols.length],r:Math.random()*6+3,a:1});
+  let frame=0;(function run(){ctx.clearRect(0,0,cv.width,cv.height);frame++;
+    ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a-=.008;ctx.globalAlpha=Math.max(0,p.a);ctx.fillStyle=p.c;ctx.fillRect(p.x,p.y,p.r,p.r);});
+    if(frame<140)requestAnimationFrame(run);else{cv.hidden=true;ctx.clearRect(0,0,cv.width,cv.height);}})();
+}
+
+/* ===================== CLASS MODE ===================== */
+const CLASS_CODE="GRADE6ENGLISH";
+const cls={mode:"solo",topic:"all",level:"all",len:5,method:"hands",groups:6,scores:[],showScores:false,lastAward:-1,pool:[],i:0,revealed:false,ended:false,voice:0};
+function openClass(id){["home","topic","play","done"].forEach(s=>el(s).hidden=true);["classgate","classsetup","classplay"].forEach(s=>el(s).hidden=(s!==id));window.scrollTo(0,0);}
+function exitClass(){["classgate","classsetup","classplay"].forEach(s=>el(s).hidden=true);renderHome();show("home");}
+function teacherEntry(){let ok=false;try{ok=localStorage.getItem("eeq_teacher")==="1";}catch(e){}if(ok){openClass("classsetup");buildSetup();}else{openClass("classgate");setTimeout(()=>{try{el("cgCode").focus();}catch(e){}},60);}}
+el("teacherLink").onclick=teacherEntry;
+el("cgBack").onclick=exitClass;el("csBack").onclick=exitClass;
+function tryUnlock(){const v=(el("cgCode").value||"").trim().toUpperCase().replace(/\s+/g,"");if(v===CLASS_CODE){try{localStorage.setItem("eeq_teacher","1");}catch(e){}el("cgErr").hidden=true;openClass("classsetup");buildSetup();}else{el("cgErr").hidden=false;}}
+el("cgUnlock").onclick=tryUnlock;
+el("cgCode").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();tryUnlock();}});
+let setupBuilt=false;
+function buildSetup(){
+  if(setupBuilt)return;setupBuilt=true;
+  const sel=el("csTopic");sel.innerHTML="";
+  const o0=document.createElement("option");o0.value="all";o0.textContent="Mixed — all topics";sel.appendChild(o0);
+  DATA.forEach(t=>{const o=document.createElement("option");o.value=t.id;o.textContent=t.title;sel.appendChild(o);});
+  sel.onchange=()=>{cls.topic=sel.value;};
+  segWire("csMode","mode",v=>{cls.mode=v;const g=v==="group";el("csGroupsField").hidden=!g;el("csMethodField").hidden=g;el("csMethodNote").hidden=g;});
+  segWire("csLevel","lv",v=>cls.level=v);
+  segWire("csLen","n",v=>cls.len=+v);
+  segWire("csMethod","m",v=>{cls.method=v;updateMethodNote();});
+  segWire("csGroups","g",v=>cls.groups=+v);
+  el("csStart").onclick=startClass;
+  updateMethodNote();
+}
+function segWire(id,attr,cb){const g=el(id);g.querySelectorAll("button").forEach(b=>b.onclick=()=>{g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed","false"));b.setAttribute("aria-pressed","true");cb(b.dataset[attr]);});}
+function updateMethodNote(){const m={hands:"Learners think silently, then raise a hand. You choose one learner to answer.",boards:"Learners write on a mini-whiteboard and hold it up when they're ready — no calling out."}[cls.method]||"";el("csMethodNote").textContent=m;}
+function buildCQ(t,ac,it){
+  let q="",options=null,correct=-1,answer="";
+  if(ac.type==="mcq"){q=it.q;options=it.options;answer=it.answer;correct=it.options.indexOf(it.answer);}
+  else if(ac.type==="sort"){q="Which group does this belong in?<br><b>"+it.word+"</b>";options=ac.buckets;answer=it.answer;correct=ac.buckets.indexOf(it.answer);}
+  else if(ac.type==="tapword"){q=it.sentence;answer=it.answers.join(", ");}
+  else if(ac.type==="build"){q=it.prompt;answer=it.answer.join(" ");}
+  else if(ac.type==="typein"){q=it.prompt;answer=it.show||it.accept[0];}
+  else if(ac.type==="fillblank"){q=(it.before||"")+" _____ "+(it.after||"");answer=it.show||it.accept[0];}
+  return {topic:t.title,act:ac.title,type:ac.type,instr:ac.instr,q,options,correct,answer,explain:it.explain};
+}
+function startClass(){
+  const topics=cls.topic==="all"?DATA:DATA.filter(t=>t.id===cls.topic);
+  let pool=[];
+  topics.forEach(t=>t.activities.forEach(ac=>{
+    if(ac.type==="match")return;
+    if(!(cls.level==="all"||String(ac.level)===cls.level))return;
+    (ac.items||[]).forEach(it=>pool.push(buildCQ(t,ac,it)));
+  }));
+  pool=shuffle(pool);
+  if(cls.len>0)pool=pool.slice(0,cls.len);
+  if(!pool.length){el("csMethodNote").textContent="No questions for that mix — try another level or topic.";return;}
+  cls.pool=pool;cls.i=0;cls.ended=false;
+  const grp=cls.mode==="group";
+  if(grp){cls.scores=new Array(cls.groups).fill(0);cls.showScores=false;cls.lastAward=-1;el("cpScoreToggle").textContent="👁 Scores off";}
+  el("cpScoreToggle").hidden=!grp;el("cpScores").hidden=!grp;
+  openClass("classplay");renderCQ();
+}
+function promptText(c){
+  if(cls.mode==="group")return "👋 Groups confer quietly. The first group with hands up answers — one learner gives the answer and explains how the group worked it out.";
+  if(cls.method==="boards")return "📝 Write your answer and hold it up when you're ready — no calling out.";
+  return "🙋 Think quietly, then raise a hand — you choose who answers.";
+}
+function renderCQ(){
+  const c=cls.pool[cls.i];cls.revealed=false;
+  el("cpMeta").textContent=c.topic+" · "+c.act;
+  el("cpIdx").textContent=cls.i+1;el("cpTot").textContent=cls.pool.length;
+  el("cpAct").textContent=c.instr||"";
+  el("cpQ").innerHTML=c.q;
+  const ob=el("cpOpts");ob.innerHTML="";
+  if(c.options){c.options.forEach((o,idx)=>{const d=document.createElement("div");d.className="cp-opt";d.dataset.i=idx;d.innerHTML='<span class="cp-num">'+(idx+1)+'</span><span>'+o+'</span>';ob.appendChild(d);});}
+  el("cpReveal").hidden=true;el("cpAns").innerHTML="";el("cpWhy").innerHTML="";
+  el("cpPrompt").hidden=false;el("cpPrompt").innerHTML=promptText(c);
+  if(cls.mode==="group")renderScores();
+  el("cpMain").textContent="Reveal answer";
+}
+function revealCQ(){
+  if(cls.revealed||cls.ended)return;cls.revealed=true;
+  const c=cls.pool[cls.i];
+  if(c.options){el("cpOpts").querySelectorAll(".cp-opt").forEach(d=>{const idx=+d.dataset.i;d.classList.add(idx===c.correct?"correct":"dim");});}
+  el("cpPrompt").hidden=true;el("cpReveal").hidden=false;
+  el("cpAns").innerHTML="Answer: <b>"+c.answer+"</b>";
+  el("cpWhy").innerHTML=(c.explain||"")+(cls.mode==="group"?'<div class="cp-awardhint">Tap the group that explained it correctly to give a point.</div>':"");
+  el("cpMain").textContent=(cls.i>=cls.pool.length-1)?"Finish session":"Next question →";
+}
+function nextCQ(){if(cls.i>=cls.pool.length-1)endClass();else{cls.i++;renderCQ();}}
+function prevCQ(){if(cls.i>0){cls.i--;renderCQ();}}
+function endClass(){
+  cls.ended=true;
+  el("cpAct").textContent="";el("cpOpts").innerHTML="";el("cpReveal").hidden=true;
+  el("cpMeta").textContent="Class Mode";el("cpMain").textContent="Back to setup";
+  if(cls.mode==="group"){
+    el("cpScores").hidden=true;
+    const order=cls.scores.map((s,g)=>({g,s})).sort((a,b)=>b.s-a.s);
+    let html="";order.forEach((o,r)=>{html+='<div class="cp-stand"><span>'+(r+1)+'. Group '+(o.g+1)+'</span><span>'+o.s+(o.s===1?' pt':' pts')+'</span></div>';});
+    el("cpQ").innerHTML="🏆 Final standings";
+    el("cpPrompt").hidden=false;el("cpPrompt").innerHTML='<div class="cp-standings">'+html+'</div>';
+  }else{
+    el("cpQ").innerHTML="🌿 Session complete";
+    el("cpPrompt").hidden=false;el("cpPrompt").innerHTML="Well done, class. You reviewed "+cls.pool.length+" questions together.";
+  }
+}
+function classMain(){if(cls.ended){cls.ended=false;openClass("classsetup");return;}if(!cls.revealed)revealCQ();else nextCQ();}
+el("cpMain").onclick=classMain;
+el("cpPrev").onclick=()=>{if(!cls.ended)prevCQ();};
+el("cpExit").onclick=()=>openClass("classsetup");
+el("cpVoice").onclick=()=>{cls.voice=(cls.voice+1)%2;el("cpVoice").textContent=cls.voice===0?"🔇 Silent voices":"🤫 Whisper only";};
+el("cpFull").onclick=()=>{const e=el("classplay");try{if(!document.fullscreenElement){if(e.requestFullscreen)e.requestFullscreen().catch(()=>{});}else if(document.exitFullscreen)document.exitFullscreen();}catch(err){}};
+function renderScores(){
+  const row=el("cpScoresRow");row.innerHTML="";
+  for(let g=0;g<cls.groups;g++){
+    const b=document.createElement("button");b.className="cp-team";
+    b.innerHTML="<span>G"+(g+1)+"</span>"+(cls.showScores?'<span class="cp-team-s">'+cls.scores[g]+"</span>":"");
+    b.onclick=()=>{cls.scores[g]++;cls.lastAward=g;renderScores();};
+    row.appendChild(b);
+  }
+}
+el("cpUndo").onclick=()=>{if(cls.lastAward>-1){cls.scores[cls.lastAward]=Math.max(0,cls.scores[cls.lastAward]-1);cls.lastAward=-1;renderScores();}};
+el("cpScoreToggle").onclick=()=>{cls.showScores=!cls.showScores;el("cpScoreToggle").textContent=cls.showScores?"👁 Scores on":"👁 Scores off";renderScores();};
+document.addEventListener("keydown",e=>{
+  if(el("classplay").hidden)return;
+  if(e.key===" "||e.key==="ArrowRight"||e.key==="Enter"){e.preventDefault();classMain();}
+  else if(e.key==="ArrowLeft"){e.preventDefault();if(!cls.ended)prevCQ();}
+  else if(e.key==="r"||e.key==="R"){e.preventDefault();revealCQ();}
+  else if(e.key==="f"||e.key==="F"){e.preventDefault();el("cpFull").click();}
+  else if(e.key==="v"||e.key==="V"){el("cpVoice").click();}
+  else if(cls.mode==="group"&&!cls.ended&&/^[1-9]$/.test(e.key)){const g=+e.key-1;if(g<cls.groups){cls.scores[g]++;cls.lastAward=g;renderScores();}}
+  else if(cls.mode==="group"&&(e.key==="s"||e.key==="S")){el("cpScoreToggle").click();}
+  else if(e.key==="Escape"){openClass("classsetup");}
+});
+
+renderHome();
+</script>
+
+</body></html>
